@@ -1005,35 +1005,34 @@ async function sendNtfy(missed, settings, isTest) {
   const topic = (settings && settings.ntfyTopic) || document.getElementById('ntfyTopic').value.trim();
   let server = (settings && settings.ntfyServer) || document.getElementById('ntfyServer').value.trim() || 'https://ntfy.sh';
   
-  // Cleanup server URL
   server = server.replace(/\/+$/, '').replace(new RegExp('/' + topic + '$'), '');
   if (!server.startsWith('http')) server = 'https://ntfy.sh';
   if (!topic) { showToast('Enter a topic name first', true); return; }
 
-  const names = {book:'📚 Reading', skill:'🗣 Soft Skills', proj:'💻 Side Project'};
+  const names = {book:'Reading', skill:'Soft Skills', proj:'Side Project'};
   const name = (settings && settings.accName) || document.getElementById('accName').value || 'You';
 
-  const title = isTest ? '✅ Stay Sharp is connected!' : `⚠️ ${name}, deadline passed!`;
-  const msg = isTest
-    ? 'Push notifications are working. You\'ll get pinged if you miss your habits.'
-    : `Missed today: ${missed.map(h => names[h]).join(', ')}. Get it done.`;
+  // HEADERS: Use plain text only to avoid browser crashes
+  const title = isTest ? 'Stay Sharp: Connection Success' : 'Stay Sharp: Deadline Alert';
+  const msg = isTest 
+    ? '✅ Push notifications are working! Emojis are safe in the body: 📚 🗣 💻' 
+    : `⚠️ ${name}, habits missed: ${missed.map(h => names[h]).join(', ')}.`;
 
   try {
-    // FIX: Switched to PUT and added mode: 'no-cors' to bypass browser blocks
     await fetch(`${server}/${encodeURIComponent(topic)}`, {
       method: 'PUT', 
-      mode: 'no-cors',
+      // mode: 'no-cors' REMOVED to allow PUT method
       headers: {
         'Title': title,
-        'Priority': isTest ? 'default' : 'high',
-        'Tags': isTest ? 'white_check_mark' : 'warning',
+        'Priority': isTest ? '3' : '4', // Numeric priorities are more stable
+        'Tags': isTest ? 'white_check_mark' : 'warning'
       },
-      body: msg
+      body: msg // Emojis are 100% safe here
     });
-    showToast(isTest ? '📲 Test sent — check your phone!' : '📲 Push notification fired');
+    showToast(isTest ? '📲 Test sent!' : '📲 Push notification fired');
   } catch(e) {
     console.error("Ntfy Error:", e);
-    showToast('Push failed — check topic name & server', true);
+    showToast('Push failed — see console for details', true);
   }
 }
 

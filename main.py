@@ -14,8 +14,8 @@ app = FastAPI()
 # Updated CORS section in main.py
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://staysharp-1010.netlify.app"], # Restricted to your site only
-    allow_methods=["GET", "POST", "PUT"], # Added PUT
+    allow_origins=["https://staysharp-1010.netlify.app"], # Only your site can talk to this API
+    allow_methods=["GET", "POST", "PUT", "OPTIONS"],      # Added PUT and OPTIONS
     allow_headers=["*"],
 )
 
