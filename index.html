@@ -721,6 +721,13 @@ textarea.detail-input {
 
 <div class="toast" id="toast"></div>
 
+<div id="settingsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:200; align-items:center; justify-content:center;">
+  <div style="background:var(--bg2); padding:30px; border-radius:20px; width:90%; max-width:500px; border:1px solid var(--border2);">
+    <h2 class="acc-title">Advanced Settings</h2>
+    <button onclick="closeModal()" class="deadline-option" style="margin-top:20px; width:100%">Close</button>
+  </div>
+</div>
+
 <script>
 const HABITS = ['book','skill','proj'];
 const DAY_NAMES = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
@@ -728,6 +735,16 @@ const state = { mins: {book:0,skill:0,proj:0}, deadline: '10pm' };
 
 // ⚙️ Set this to your Railway URL after deploying, e.g. "https://staysharp.up.railway.app"
 const BACKEND_URL = localStorage.getItem('staysharp_backend') || '';
+
+
+function openSettings() {
+  document.getElementById('settingsModal').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('settingsModal').style.display = 'none';
+}
+
 
 function todayKey() {
   const d = new Date();

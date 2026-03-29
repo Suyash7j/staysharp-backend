@@ -139,8 +139,39 @@ DEADLINE_HOURS = {
 }
 
 notified_today = set()  # tracks which dates we already fired for
-
+# Updated in main.py
 async def deadline_checker():
+    while True:
+        now = datetime.now()
+        today_key = now.date().isoformat()
+        
+        for user_id, entry in store.items():
+            settings = entry.get("settings", {})
+            # New Settings: 'nudge_start' (e.g., 7pm) and 'shame_deadline' (e.g., 11pm)
+            nudge_hour = DEADLINE_HOURS.get(settings.get("nudge_start"), 19)
+            shame_hour = DEADLINE_HOURS.get(settings.get("shame_deadline"), 23)
+            
+            # 1. Check if habits are done
+            log = entry.get("log", {}).get(today_key, {})
+            habits = ["book", "skill", "proj"]
+            missed = [h for h in habits if not log.get(h, {}).get("checked", False)]
+            
+            if not missed: continue
+
+            # 2. Hourly Nudges (Every hour after nudge_start until shame_deadline)
+            if nudge_hour <= now.hour < shame_hour:
+                if now.minute == 0: # Only fire at the top of the hour
+                    await send_ntfy(settings, f"Hourly Reminder: {len(missed)} habits left!")
+
+            # 3. The Shame Email Trigger
+            if now.hour == shame_hour and now.minute == 0:
+                # We can't 'force' an email from a server without an API (SendGrid/Gmail API)
+                # So we send a High-Priority Push Alert specifically to trigger the email
+                await send_ntfy(settings, "🚨 FINAL DEADLINE: Sending Shame Email NOW.", priority="urgent")
+        
+        await asyncio.sleep(60) # Check every minute
+
+# async def deadline_checker():
     while True:
         await asyncio.sleep(60)  # check every minute
         now = datetime.now()
