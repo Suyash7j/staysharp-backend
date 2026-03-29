@@ -1,0 +1,7 @@
+[build]
+  command = "echo 'Static site'"
+  publish = "."
+
+[context.production]
+  command = "echo 'Static site'"
+  publish = "."
