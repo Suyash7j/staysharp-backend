@@ -10,13 +10,13 @@ import os
 
 app = FastAPI()
 
+# In your staysharp-backend/main.py
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=["https://staysharp-1010.netlify.app"], 
+    allow_methods=["POST"],
     allow_headers=["*"],
 )
-
 
 # In-memory store (persists while server is running)
 # For true persistence across restarts, this writes to a JSON file too
