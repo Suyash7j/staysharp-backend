@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 from datetime import datetime
 import httpx
 import asyncio
@@ -69,11 +70,21 @@ class HabitEntry(BaseModel):
     mins: int = 0
     note: str = ""
     ref: str = ""
+    # New extended fields
+    category: Optional[str] = ""       # Reading, Vocal Drills, Non-Vocal Cues, Decision Practice
+    energy: Optional[int] = 5          # 1-10 scale
+    one_min_decision: Optional[str] = ""  # Quick decision log
+    reflection: Optional[str] = ""     # Daily reflection
+    vocal_drills: Optional[dict] = {}  # { nursery_rhyme: bool, stress_verb: bool }
+    nonvocal_drills: Optional[dict] = {} # { box_gesture: bool, eye_lock: bool }
 
 class DayLog(BaseModel):
     book: HabitEntry
     skill: HabitEntry
     proj: HabitEntry
+    # Day-level fields
+    daily_reflection: Optional[str] = ""
+    ninety_day_start: Optional[str] = ""  # ISO date when 90-day commitment started
 
 class Settings(BaseModel):
     name: str = ""
@@ -81,6 +92,7 @@ class Settings(BaseModel):
     ntfy_server: str = "https://ntfy.sh"
     deadline: str = "10pm"
     acc_email: str = ""
+    ninety_day_start: Optional[str] = ""  # stored in settings for persistence
 
 class SavePayload(BaseModel):
     date: str
@@ -99,9 +111,7 @@ async def health():
 
 @app.get("/get-all")
 async def get_all():
-    """Return all logs — frontend uses this to sync on load from any device."""
     try:
-        # Return flattened: { "2026-3-29": { book: {...}, skill: {...}, proj: {...} }, ... }
         result = {}
         for date, entry in store.items():
             result[date] = entry.get("log", {})
@@ -111,11 +121,9 @@ async def get_all():
 
 @app.get("/get-settings")
 async def get_settings():
-    """Return the most recently saved settings."""
     try:
         if not store:
             return {"ok": True, "settings": {}}
-        # Get settings from the most recent date
         latest_date = sorted(store.keys())[-1]
         settings = store[latest_date].get("settings", {})
         return {"ok": True, "settings": settings}
@@ -157,18 +165,14 @@ async def trigger_check():
     now = datetime.now()
     today_key = f"{now.year}-{now.month}-{now.day}"
     entry = store.get(today_key)
-
     if not entry:
         return {"ok": False, "error": "No data saved for today yet. Hit /save first."}
-
     settings = entry.get("settings", {})
     log = entry.get("log", {})
     habits = {"book": "📚 Reading", "skill": "🗣 Soft Skills", "proj": "💻 Side Project"}
     missed = [name for key, name in habits.items() if not log.get(key, {}).get("checked", False)]
-
     if not missed:
         return {"ok": True, "message": "All habits done — no email sent."}
-
     acc_email = settings.get("acc_email")
     if acc_email and resend.api_key:
         resend.Emails.send({
@@ -178,7 +182,6 @@ async def trigger_check():
             "html": f"<p><b>[TEST RUN]</b> {settings.get('name')} missed: {', '.join(missed)}.</p>"
         })
         return {"ok": True, "missed": missed, "email_sent_to": acc_email}
-
     return {"ok": False, "error": "No email configured or Resend key missing."}
 
 # --- Deadline Checker ---
@@ -190,17 +193,14 @@ async def deadline_checker():
         now = datetime.now()
         today_key = f"{now.year}-{now.month}-{now.day}"
         entry = store.get(today_key)
-
         if entry:
             settings = entry.get("settings", {})
             log = entry.get("log", {})
             deadline_hour = DEADLINE_HOURS.get(settings.get("deadline", "10pm"), 22)
             habits = {"book": "📚 Reading", "skill": "🗣 Soft Skills", "proj": "💻 Side Project"}
             missed = [name for key, name in habits.items() if not log.get(key, {}).get("checked", False)]
-
             if missed and now.hour == deadline_hour and today_key not in notified_today:
                 notified_today.add(today_key)
-
                 topic = settings.get("ntfy_topic")
                 if topic:
                     try:
@@ -212,7 +212,6 @@ async def deadline_checker():
                             )
                     except Exception as e:
                         print(f"ntfy failed: {e}")
-
                 acc_email = settings.get("acc_email")
                 if acc_email and resend.api_key:
                     try:
@@ -224,7 +223,6 @@ async def deadline_checker():
                         })
                     except Exception as e:
                         print(f"Email failed: {e}")
-
         await asyncio.sleep(60)
 
 @app.on_event("startup")
