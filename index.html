@@ -758,7 +758,8 @@ const PILL_MAXES = { book: 60, skill: 60, proj: 120 };
 const state = { mins: {book:0, skill:0, proj:0}, deadline: '10pm' };
 
 function getBackendUrl() {
-  return localStorage.getItem('staysharp_backend') || '';
+  return localStorage.getItem('staysharp_backend') 
+    || 'https://staysharp-backend-production.up.railway.app';
 }
 
 function todayKey() {

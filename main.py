@@ -1,41 +1,25 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from datetime import datetime, date, timedelta
+from datetime import datetime
 import httpx
 import asyncio
-import json
 import os
 import resend
+from supabase import create_client
 
 app = FastAPI()
-# Add to requirements.txt:
-# supabase
 
-from supabase import create_client
-import os
-
-# Replace the load_data/save_data setup with this:
+# --- Supabase ---
 supabase = create_client(
     os.environ.get("SUPABASE_URL"),
     os.environ.get("SUPABASE_KEY")
 )
 
-# Replace load_data()
-def load_data():
-    res = supabase.table("logs").select("*").execute()
-    return {row["date"]: row for row in res.data}
+# --- Resend ---
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
-# Replace save_data()
-def save_data_row(date, log, settings, saved_at):
-    supabase.table("logs").upsert({
-        "date": date,
-        "log": log,
-        "settings": settings,
-        "saved_at": saved_at
-    }).execute()
-    
-# 1. SECURITY: Only allow your Netlify frontend
+# --- CORS ---
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://staysharp-1010.netlify.app"],
@@ -43,21 +27,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 2. CREDENTIALS: Set via Railway Environment Variables
-resend.api_key = os.environ.get("RESEND_API_KEY")
-DATA_FILE = "data.json"
+# --- In-memory store (loaded from Supabase on startup) ---
+store = {}
 
 def load_data():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE) as f:
-            return json.load(f)
-    return {}
+    """Load all logs from Supabase into memory."""
+    res = supabase.table("logs").select("*").execute()
+    return {row["date"]: {"log": row["log"], "settings": row["settings"], "saved_at": row["saved_at"]} for row in res.data}
 
-def save_data(data):
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f)
-
-store = load_data()
+def save_data_row(date, log, settings, saved_at):
+    """Upsert a single day's log into Supabase."""
+    supabase.table("logs").upsert({
+        "date": date,
+        "log": log,
+        "settings": settings,
+        "saved_at": saved_at
+    }).execute()
 
 # --- Models ---
 class HabitEntry(BaseModel):
@@ -86,88 +71,117 @@ class SavePayload(BaseModel):
 # --- Routes ---
 @app.post("/save")
 async def save_day(payload: SavePayload):
-    save_data_row(
-        date=payload.date,
-        log=payload.log.dict(),
-        settings=payload.settings.dict(),
-        saved_at=datetime.utcnow().isoformat()
-    )
-    # Keep this for in-memory access by deadline_checker
-    store[payload.date] = {
-        "log": payload.log.dict(),
-        "settings": payload.settings.dict(),
-        "saved_at": datetime.utcnow().isoformat()
-    }
-    return {"ok": True}
+    saved_at = datetime.utcnow().isoformat()
+    log = payload.log.dict()
+    settings = payload.settings.dict()
 
+    # Persist to Supabase
+    save_data_row(payload.date, log, settings, saved_at)
+
+    # Keep in-memory for deadline_checker
+    store[payload.date] = {"log": log, "settings": settings, "saved_at": saved_at}
+
+    return {"ok": True}
 
 @app.post("/test-email")
 async def test_email(payload: SavePayload):
-    settings = payload.settings
-    acc_email = settings.acc_email
-    
     if not resend.api_key:
         return {"ok": False, "error": "API Key missing in Railway"}
-    if not acc_email:
+    if not payload.settings.acc_email:
         return {"ok": False, "error": "No email provided"}
-
     try:
         resend.Emails.send({
             "from": "StaySharp <onboarding@resend.dev>",
-            "to": "stevens032093@gmail.com",
+            "to": payload.settings.acc_email,
             "subject": "🧪 Stay Sharp: Email Test",
-            "html": f"<p>Success! Your accountability email for <b>{settings.name}</b> is working.</p>"
+            "html": f"<p>Success! Accountability email for <b>{payload.settings.name}</b> is working.</p>"
         })
         return {"ok": True}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
+@app.post("/trigger-check")
+async def trigger_check():
+    """Manually fire the deadline checker — for testing."""
+    now = datetime.now()
+    today_key = f"{now.year}-{now.month}-{now.day}"
+    entry = store.get(today_key)
+
+    if not entry:
+        return {"ok": False, "error": "No data saved for today yet. Hit Save first."}
+
+    settings = entry.get("settings", {})
+    log = entry.get("log", {})
+    habits = {"book": "📚 Reading", "skill": "🗣 Soft Skills", "proj": "💻 Side Project"}
+    missed = [name for key, name in habits.items() if not log.get(key, {}).get("checked", False)]
+
+    if not missed:
+        return {"ok": True, "message": "All habits done — no email sent."}
+
+    acc_email = settings.get("acc_email")
+    if acc_email and resend.api_key:
+        resend.Emails.send({
+            "from": "StaySharp <onboarding@resend.dev>",
+            "to": acc_email,
+            "subject": f"🚨 [TEST] Accountability Alert: {settings.get('name')} missed habits",
+            "html": f"<p><b>[TEST RUN]</b> {settings.get('name')} missed: {', '.join(missed)}.</p>"
+        })
+        return {"ok": True, "missed": missed, "email_sent_to": acc_email}
+
+    return {"ok": False, "error": "No email configured or Resend key missing."}
+
+# --- Deadline Checker ---
+DEADLINE_HOURS = {"8pm": 20, "9pm": 21, "10pm": 22, "11pm": 23, "midnight": 0}
+notified_today = set()
+
 async def deadline_checker():
     while True:
         now = datetime.now()
-        # Ensure key matches your frontend format (YYYY-M-D)
         today_key = f"{now.year}-{now.month}-{now.day}"
-        
-        if now.minute == 0: # Only check at the top of every minute
-            entry = store.get(today_key)
-            if entry:
-                settings = entry.get("settings", {})
-                log = entry.get("log", {})
-                deadline_hour = DEADLINE_HOURS.get(settings.get("deadline", "10pm"), 22)
+        entry = store.get(today_key)
 
-                # Identify missed habits
-                habits = {"book": "📚 Reading", "skill": "🗣 Soft Skills", "proj": "💻 Side Project"}
-                missed = [name for key, name in habits.items() if not log.get(key, {}).get("checked", False)]
+        if entry:
+            settings = entry.get("settings", {})
+            log = entry.get("log", {})
+            deadline_hour = DEADLINE_HOURS.get(settings.get("deadline", "10pm"), 22)
 
-                if missed and now.hour == deadline_hour:
-                    # A. Send ntfy Push Alert
-                    topic = settings.get("ntfy_topic")
-                    if topic:
-                        try:
-                            async with httpx.AsyncClient() as client:
-                                await client.put(
-                                    f"https://ntfy.sh/{topic}",
-                                    content=f"Missed: {', '.join(missed)}. Shame email sent.",
-                                    headers={"Title": "⚠️ Deadline Passed!", "Priority": "high", "Tags": "warning"}
-                                )
-                        except Exception as e: print(f"ntfy failed: {e}")
+            habits = {"book": "📚 Reading", "skill": "🗣 Soft Skills", "proj": "💻 Side Project"}
+            missed = [name for key, name in habits.items() if not log.get(key, {}).get("checked", False)]
 
-                    # B. Auto-Send Shame Email via Resend
-                    acc_email = settings.get("acc_email")
-                    if acc_email and resend.api_key:
-                        try:
-                            resend.Emails.send({
-                                "from": "StaySharp <onboarding@resend.dev>",
-                                "to": acc_email,
-                                "subject": f"🚨 Accountability Alert: {settings.get('name')} missed habits",
-                                "html": f"<p>This is an automated report. <b>{settings.get('name')}</b> failed to complete: {', '.join(missed)}.</p>"
-                            })
-                        except Exception as e: print(f"Email failed: {e}")
+            # FIX: use notified_today set to prevent duplicate sends
+            if missed and now.hour == deadline_hour and today_key not in notified_today:
+                notified_today.add(today_key)
+
+                # A. ntfy push — FIX: POST instead of PUT
+                topic = settings.get("ntfy_topic")
+                if topic:
+                    try:
+                        async with httpx.AsyncClient() as client:
+                            await client.post(
+                                f"https://ntfy.sh/{topic}",
+                                content=f"Missed: {', '.join(missed)}. Shame email sent.",
+                                headers={"Title": "⚠️ Deadline Passed!", "Priority": "high", "Tags": "warning"}
+                            )
+                    except Exception as e:
+                        print(f"ntfy failed: {e}")
+
+                # B. Shame email
+                acc_email = settings.get("acc_email")
+                if acc_email and resend.api_key:
+                    try:
+                        resend.Emails.send({
+                            "from": "StaySharp <onboarding@resend.dev>",
+                            "to": acc_email,
+                            "subject": f"🚨 Accountability Alert: {settings.get('name')} missed habits",
+                            "html": f"<p>This is an automated report. <b>{settings.get('name')}</b> failed to complete: {', '.join(missed)}.</p>"
+                        })
+                    except Exception as e:
+                        print(f"Email failed: {e}")
 
         await asyncio.sleep(60)
 
 @app.on_event("startup")
 async def startup():
     global store
-    store = load_data()  # now loads from Supabase
+    store = load_data()
     asyncio.create_task(deadline_checker())
