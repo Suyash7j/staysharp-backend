@@ -1,4 +1,7 @@
 [build]
-  command = "npm run build"
-  publish = "dist"
-  environment = { SKIP_INSTALL = "true" }
+  command = ""
+  publish = "."
+
+[context.production]
+  command = ""
+  publish = "."
