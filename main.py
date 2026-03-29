@@ -9,7 +9,32 @@ import os
 import resend
 
 app = FastAPI()
+# Add to requirements.txt:
+# supabase
 
+from supabase import create_client
+import os
+
+# Replace the load_data/save_data setup with this:
+supabase = create_client(
+    os.environ.get("SUPABASE_URL"),
+    os.environ.get("SUPABASE_KEY")
+)
+
+# Replace load_data()
+def load_data():
+    res = supabase.table("logs").select("*").execute()
+    return {row["date"]: row for row in res.data}
+
+# Replace save_data()
+def save_data_row(date, log, settings, saved_at):
+    supabase.table("logs").upsert({
+        "date": date,
+        "log": log,
+        "settings": settings,
+        "saved_at": saved_at
+    }).execute()
+    
 # 1. SECURITY: Only allow your Netlify frontend
 app.add_middleware(
     CORSMiddleware,
@@ -61,17 +86,20 @@ class SavePayload(BaseModel):
 # --- Routes ---
 @app.post("/save")
 async def save_day(payload: SavePayload):
+    save_data_row(
+        date=payload.date,
+        log=payload.log.dict(),
+        settings=payload.settings.dict(),
+        saved_at=datetime.utcnow().isoformat()
+    )
+    # Keep this for in-memory access by deadline_checker
     store[payload.date] = {
         "log": payload.log.dict(),
         "settings": payload.settings.dict(),
         "saved_at": datetime.utcnow().isoformat()
     }
-    save_data(store)
     return {"ok": True}
 
-# --- The Unified Deadline Checker ---
-DEADLINE_HOURS = {"8pm": 20, "9pm": 21, "10pm": 22, "11pm": 23, "midnight": 0}
-notified_today = set()
 
 @app.post("/test-email")
 async def test_email(payload: SavePayload):
@@ -140,4 +168,6 @@ async def deadline_checker():
 
 @app.on_event("startup")
 async def startup():
+    global store
+    store = load_data()  # now loads from Supabase
     asyncio.create_task(deadline_checker())
