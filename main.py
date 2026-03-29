@@ -73,6 +73,27 @@ async def save_day(payload: SavePayload):
 DEADLINE_HOURS = {"8pm": 20, "9pm": 21, "10pm": 22, "11pm": 23, "midnight": 0}
 notified_today = set()
 
+@app.post("/test-email")
+async def test_email(payload: SavePayload):
+    settings = payload.settings
+    acc_email = settings.acc_email
+    
+    if not resend.api_key:
+        return {"ok": False, "error": "API Key missing in Railway"}
+    if not acc_email:
+        return {"ok": False, "error": "No email provided"}
+
+    try:
+        resend.Emails.send({
+            "from": "StaySharp <onboarding@resend.dev>",
+            "to": acc_email,
+            "subject": "🧪 Stay Sharp: Email Test",
+            "html": f"<p>Success! Your accountability email for <b>{settings.name}</b> is working.</p>"
+        })
+        return {"ok": True}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
 async def deadline_checker():
     while True:
         now = datetime.now()

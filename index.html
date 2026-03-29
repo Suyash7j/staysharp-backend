@@ -526,6 +526,7 @@ textarea.detail-input {
 </div>
 
 
+
 <div class="container">
 
   <div class="header">
@@ -746,6 +747,9 @@ textarea.detail-input {
   <div style="background:var(--bg2); padding:30px; border-radius:20px; width:90%; max-width:500px; border:1px solid var(--border2);">
     <h2 class="acc-title">Advanced Settings</h2>
     <button onclick="closeModal()" class="deadline-option" style="margin-top:20px; width:100%">Close</button>
+    <button onclick="sendTestEmail()" class="deadline-option" style="margin-top:10px; border-color:var(--accent-skill);">
+      📧 Test Email Auto-Send
+    </button>
   </div>
 </div>
 
@@ -1093,6 +1097,7 @@ function copyTopic() {
   if (!t) { showToast('Enter a topic first', true); return; }
   navigator.clipboard.writeText(t).then(() => showToast('Topic copied!'));
 }
+
 
 // function triggerShameEmail(missed, settings) {
 //   const names = {book:'📚 Book Reading', skill:'🗣 Soft Skills', proj:'💻 Side Project'};
