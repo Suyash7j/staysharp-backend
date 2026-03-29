@@ -11,10 +11,15 @@ from supabase import create_client
 app = FastAPI()
 
 # --- Supabase ---
-supabase = create_client(
-    os.environ.get("SUPABASE_URL"),
-    os.environ.get("SUPABASE_KEY")
-)
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+
+supabase = None
+if SUPABASE_URL and SUPABASE_KEY:
+    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    print(f"✅ Supabase connected: {SUPABASE_URL}")
+else:
+    print(f"❌ Supabase env vars missing — URL={SUPABASE_URL}, KEY={'set' if SUPABASE_KEY else 'missing'}")
 
 # --- Resend ---
 resend.api_key = os.environ.get("RESEND_API_KEY")
@@ -27,22 +32,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- In-memory store (loaded from Supabase on startup) ---
+# --- In-memory store ---
 store = {}
 
 def load_data():
-    """Load all logs from Supabase into memory."""
-    res = supabase.table("logs").select("*").execute()
-    return {row["date"]: {"log": row["log"], "settings": row["settings"], "saved_at": row["saved_at"]} for row in res.data}
+    if not supabase:
+        print("⚠️ Supabase not available, starting with empty store")
+        return {}
+    try:
+        res = supabase.table("logs").select("*").execute()
+        data = {row["date"]: {"log": row["log"], "settings": row["settings"], "saved_at": row["saved_at"]} for row in res.data}
+        print(f"✅ Loaded {len(data)} rows from Supabase")
+        return data
+    except Exception as e:
+        print(f"❌ load_data failed: {e}")
+        return {}
 
 def save_data_row(date, log, settings, saved_at):
-    """Upsert a single day's log into Supabase."""
-    supabase.table("logs").upsert({
-        "date": date,
-        "log": log,
-        "settings": settings,
-        "saved_at": saved_at
-    }).execute()
+    if not supabase:
+        raise Exception("Supabase not configured — check SUPABASE_URL and SUPABASE_KEY in Railway")
+    try:
+        supabase.table("logs").upsert({
+            "date": date,
+            "log": log,
+            "settings": settings,
+            "saved_at": saved_at
+        }).execute()
+        print(f"✅ Saved row for {date}")
+    except Exception as e:
+        print(f"❌ save_data_row failed: {e}")
+        raise
 
 # --- Models ---
 class HabitEntry(BaseModel):
@@ -69,19 +88,27 @@ class SavePayload(BaseModel):
     settings: Settings
 
 # --- Routes ---
+@app.get("/health")
+async def health():
+    return {
+        "ok": True,
+        "supabase": "connected" if supabase else "missing env vars",
+        "resend": "configured" if resend.api_key else "missing",
+        "store_rows": len(store)
+    }
+
 @app.post("/save")
 async def save_day(payload: SavePayload):
-    saved_at = datetime.utcnow().isoformat()
-    log = payload.log.dict()
-    settings = payload.settings.dict()
-
-    # Persist to Supabase
-    save_data_row(payload.date, log, settings, saved_at)
-
-    # Keep in-memory for deadline_checker
-    store[payload.date] = {"log": log, "settings": settings, "saved_at": saved_at}
-
-    return {"ok": True}
+    try:
+        saved_at = datetime.utcnow().isoformat()
+        log = payload.log.dict()
+        settings = payload.settings.dict()
+        save_data_row(payload.date, log, settings, saved_at)
+        store[payload.date] = {"log": log, "settings": settings, "saved_at": saved_at}
+        return {"ok": True}
+    except Exception as e:
+        print(f"❌ /save error: {e}")
+        return {"ok": False, "error": str(e)}
 
 @app.post("/test-email")
 async def test_email(payload: SavePayload):
@@ -102,13 +129,12 @@ async def test_email(payload: SavePayload):
 
 @app.post("/trigger-check")
 async def trigger_check():
-    """Manually fire the deadline checker — for testing."""
     now = datetime.now()
     today_key = f"{now.year}-{now.month}-{now.day}"
     entry = store.get(today_key)
 
     if not entry:
-        return {"ok": False, "error": "No data saved for today yet. Hit Save first."}
+        return {"ok": False, "error": "No data saved for today yet. Hit /save first."}
 
     settings = entry.get("settings", {})
     log = entry.get("log", {})
@@ -144,15 +170,12 @@ async def deadline_checker():
             settings = entry.get("settings", {})
             log = entry.get("log", {})
             deadline_hour = DEADLINE_HOURS.get(settings.get("deadline", "10pm"), 22)
-
             habits = {"book": "📚 Reading", "skill": "🗣 Soft Skills", "proj": "💻 Side Project"}
             missed = [name for key, name in habits.items() if not log.get(key, {}).get("checked", False)]
 
-            # FIX: use notified_today set to prevent duplicate sends
             if missed and now.hour == deadline_hour and today_key not in notified_today:
                 notified_today.add(today_key)
 
-                # A. ntfy push — FIX: POST instead of PUT
                 topic = settings.get("ntfy_topic")
                 if topic:
                     try:
@@ -165,7 +188,6 @@ async def deadline_checker():
                     except Exception as e:
                         print(f"ntfy failed: {e}")
 
-                # B. Shame email
                 acc_email = settings.get("acc_email")
                 if acc_email and resend.api_key:
                     try:
