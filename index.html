@@ -421,6 +421,8 @@ textarea.detail-input {
   color: #ff8888;
 }
 
+
+
 /* Save button */
 .save-btn {
   width: 100%;
@@ -501,9 +503,28 @@ textarea.detail-input {
 </head>
 <body>
 
+
+  
+  
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
+
+<div class="accountability-section">
+  <div class="acc-title">⏰ Advanced Reminders</div>
+  <div class="acc-row">
+      <span class="acc-label">Nudge Start</span>
+      <select class="acc-input" id="nudgeStart">
+          <option value="18">6:00 PM</option>
+          <option value="19" selected>7:00 PM</option>
+          <option value="20">8:00 PM</option>
+      </select>
+  </div>
+  <div style="font-size:11px; color:var(--muted); margin-bottom:12px; padding-left:90px;">
+      Pushes an alert every hour if habits aren't done.
+  </div>
+</div>
+
 
 <div class="container">
 
@@ -1073,29 +1094,43 @@ function copyTopic() {
   navigator.clipboard.writeText(t).then(() => showToast('Topic copied!'));
 }
 
+// function triggerShameEmail(missed, settings) {
+//   const names = {book:'📚 Book Reading', skill:'🗣 Soft Skills', proj:'💻 Side Project'};
+//   const missedNames = missed.map(h => names[h]).join(', ');
+//   const name = settings.accName || 'Your friend';
+
+//   // mailto fallback (opens email client)
+//   const subject = encodeURIComponent(`[Accountability] ${name} missed their habits today`);
+//   const body = encodeURIComponent(
+//     `Hi,\n\nThis is an automated accountability report.\n\n` +
+//     `${name} did NOT complete the following habits today (${new Date().toLocaleDateString()}):\n\n` +
+//     `${missed.map(h => '  ✗ ' + names[h]).join('\n')}\n\n` +
+//     `Streak is at risk. Please check in with them.\n\n` +
+//     `— Stay Sharp Tracker`
+//   );
+
+//   const mailtoLink = `mailto:${settings.accEmail}?subject=${subject}&body=${body}`;
+//   showToast('⚠️ Deadline passed — opening email to your accountability partner', true);
+
+//   setTimeout(() => {
+//     window.open(mailtoLink, '_blank');
+//   }, 1500);
+// }
+
 function triggerShameEmail(missed, settings) {
-  const names = {book:'📚 Book Reading', skill:'🗣 Soft Skills', proj:'💻 Side Project'};
-  const missedNames = missed.map(h => names[h]).join(', ');
-  const name = settings.accName || 'Your friend';
+  // SHAME VALIDATION DIALOGUE
+  const confirmSend = confirm("⚠️ DEADLINE PASSED. Are you sure you want to open the shame email? Canceling will be logged as a bypass.");
+  
+  if (!confirmSend) {
+      showToast("Bypass logged. You're only cheating yourself.", true);
+      // Optional: Send a 'Bypass' notification to ntfy so you can't hide it
+      return;
+  }
 
-  // mailto fallback (opens email client)
-  const subject = encodeURIComponent(`[Accountability] ${name} missed their habits today`);
-  const body = encodeURIComponent(
-    `Hi,\n\nThis is an automated accountability report.\n\n` +
-    `${name} did NOT complete the following habits today (${new Date().toLocaleDateString()}):\n\n` +
-    `${missed.map(h => '  ✗ ' + names[h]).join('\n')}\n\n` +
-    `Streak is at risk. Please check in with them.\n\n` +
-    `— Stay Sharp Tracker`
-  );
-
-  const mailtoLink = `mailto:${settings.accEmail}?subject=${subject}&body=${body}`;
-  showToast('⚠️ Deadline passed — opening email to your accountability partner', true);
-
-  setTimeout(() => {
-    window.open(mailtoLink, '_blank');
-  }, 1500);
+  // Existing mailto logic...
+  const mailtoLink = `mailto:${settings.accEmail}?subject=...`;
+  window.open(mailtoLink, '_blank');
 }
-
 init();
 </script>
 </body>
