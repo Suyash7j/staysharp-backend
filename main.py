@@ -86,7 +86,7 @@ async def test_email(payload: SavePayload):
     try:
         resend.Emails.send({
             "from": "StaySharp <onboarding@resend.dev>",
-            "to": acc_email,
+            "to": "stevens032093@gmail.com",
             "subject": "🧪 Stay Sharp: Email Test",
             "html": f"<p>Success! Your accountability email for <b>{settings.name}</b> is working.</p>"
         })

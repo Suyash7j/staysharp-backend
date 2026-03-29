@@ -30,7 +30,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Noise texture overlay */
 body::before {
   content: '';
   position: fixed;
@@ -41,7 +40,6 @@ body::before {
   opacity: 0.6;
 }
 
-/* Glow orbs */
 .orb {
   position: fixed;
   border-radius: 50%;
@@ -421,8 +419,6 @@ textarea.detail-input {
   color: #ff8888;
 }
 
-
-
 /* Save button */
 .save-btn {
   width: 100%;
@@ -472,7 +468,6 @@ textarea.detail-input {
 .toast.show { transform: translateX(-50%) translateY(0); }
 .toast.warn { border-color: rgba(255,100,100,0.4); color: #ff9999; }
 
-/* Animations */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -503,29 +498,9 @@ textarea.detail-input {
 </head>
 <body>
 
-
-  
-  
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
-
-<div class="accountability-section">
-  <div class="acc-title">⏰ Advanced Reminders</div>
-  <div class="acc-row">
-      <span class="acc-label">Nudge Start</span>
-      <select class="acc-input" id="nudgeStart">
-          <option value="18">6:00 PM</option>
-          <option value="19" selected>7:00 PM</option>
-          <option value="20">8:00 PM</option>
-      </select>
-  </div>
-  <div style="font-size:11px; color:var(--muted); margin-bottom:12px; padding-left:90px;">
-      Pushes an alert every hour if habits aren't done.
-  </div>
-</div>
-
-
 
 <div class="container">
 
@@ -581,16 +556,16 @@ textarea.detail-input {
       </div>
       <div class="expand-toggle" id="tog-book" onclick="toggleDetail('book')">
         <svg class="expand-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
-        Log details
+        <span class="tog-label">Log details</span>
       </div>
       <div class="habit-details" id="det-book">
         <div class="detail-group">
           <div class="detail-group-label">Time spent</div>
           <div class="min-pills" id="pills-book">
-            <button class="min-pill" onclick="selMin('book',15)">15 min</button>
-            <button class="min-pill" onclick="selMin('book',30)">30 min</button>
-            <button class="min-pill" onclick="selMin('book',45)">45 min</button>
-            <button class="min-pill" onclick="selMin('book',60)">60+ min</button>
+            <button class="min-pill" data-val="15" onclick="selMin('book',15)">15 min</button>
+            <button class="min-pill" data-val="30" onclick="selMin('book',30)">30 min</button>
+            <button class="min-pill" data-val="45" onclick="selMin('book',45)">45 min</button>
+            <button class="min-pill" data-val="60" onclick="selMin('book',60)">60+ min</button>
           </div>
         </div>
         <div class="detail-group">
@@ -616,16 +591,16 @@ textarea.detail-input {
       </div>
       <div class="expand-toggle" id="tog-skill" onclick="toggleDetail('skill')">
         <svg class="expand-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
-        Log details
+        <span class="tog-label">Log details</span>
       </div>
       <div class="habit-details" id="det-skill">
         <div class="detail-group">
           <div class="detail-group-label">Time spent</div>
           <div class="min-pills" id="pills-skill">
-            <button class="min-pill" onclick="selMin('skill',15)">15 min</button>
-            <button class="min-pill" onclick="selMin('skill',30)">30 min</button>
-            <button class="min-pill" onclick="selMin('skill',45)">45 min</button>
-            <button class="min-pill" onclick="selMin('skill',60)">60+ min</button>
+            <button class="min-pill" data-val="15" onclick="selMin('skill',15)">15 min</button>
+            <button class="min-pill" data-val="30" onclick="selMin('skill',30)">30 min</button>
+            <button class="min-pill" data-val="45" onclick="selMin('skill',45)">45 min</button>
+            <button class="min-pill" data-val="60" onclick="selMin('skill',60)">60+ min</button>
           </div>
         </div>
         <div class="detail-group">
@@ -651,16 +626,16 @@ textarea.detail-input {
       </div>
       <div class="expand-toggle" id="tog-proj" onclick="toggleDetail('proj')">
         <svg class="expand-arrow" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
-        Log details
+        <span class="tog-label">Log details</span>
       </div>
       <div class="habit-details" id="det-proj">
         <div class="detail-group">
           <div class="detail-group-label">Time spent</div>
           <div class="min-pills" id="pills-proj">
-            <button class="min-pill" onclick="selMin('proj',30)">30 min</button>
-            <button class="min-pill" onclick="selMin('proj',60)">60 min</button>
-            <button class="min-pill" onclick="selMin('proj',90)">90 min</button>
-            <button class="min-pill" onclick="selMin('proj',120)">120+ min</button>
+            <button class="min-pill" data-val="30" onclick="selMin('proj',30)">30 min</button>
+            <button class="min-pill" data-val="60" onclick="selMin('proj',60)">60 min</button>
+            <button class="min-pill" data-val="90" onclick="selMin('proj',90)">90 min</button>
+            <button class="min-pill" data-val="120" onclick="selMin('proj',120)">120+ min</button>
           </div>
         </div>
         <div class="detail-group">
@@ -674,6 +649,22 @@ textarea.detail-input {
       </div>
     </div>
 
+  </div>
+
+  <!-- Reminders -->
+  <div class="accountability-section" style="animation-delay:0.35s">
+    <div class="acc-title">⏰ Reminders</div>
+    <div class="acc-row">
+      <span class="acc-label">Nudge Start</span>
+      <select class="acc-input" id="nudgeStart">
+        <option value="18">6:00 PM</option>
+        <option value="19" selected>7:00 PM</option>
+        <option value="20">8:00 PM</option>
+      </select>
+    </div>
+    <div style="font-size:11px; color:var(--muted); margin-top:6px; padding-left:90px;">
+      Pushes an alert every hour if habits aren't done.
+    </div>
   </div>
 
   <!-- Accountability Email -->
@@ -701,7 +692,7 @@ textarea.detail-input {
   </div>
 
   <!-- Push Notification via ntfy -->
-  <div class="accountability-section" style="margin-bottom:28px; animation-delay:0.45s">
+  <div class="accountability-section" style="animation-delay:0.45s">
     <div class="acc-title" style="color: var(--accent-proj)">📲 Phone Push Alerts</div>
     <div class="acc-desc">Get a push notification straight to your phone via <strong style="color:var(--text)">ntfy</strong> — free, no account needed for basic use. Works on iOS and Android. The page pings your phone at your chosen deadline if any habit is undone.</div>
 
@@ -737,39 +728,38 @@ textarea.detail-input {
     </div>
   </div>
 
+  <!-- Backend config (hidden by default, set via console or URL param) -->
+  <div id="backendSection" style="display:none; margin-bottom:28px;">
+    <div class="accountability-section">
+      <div class="acc-title">⚙️ Backend URL</div>
+      <div class="acc-row">
+        <span class="acc-label">URL</span>
+        <input class="acc-input" id="backendUrl" type="text" placeholder="https://your-backend.railway.app" />
+      </div>
+      <button class="deadline-option" style="width:100%; margin-top:10px" onclick="saveBackendUrl()">Save Backend URL</button>
+      <button class="deadline-option" style="width:100%; margin-top:8px; border-color:var(--accent-skill)" onclick="sendTestEmail()">📧 Test Shame Email</button>
+    </div>
+  </div>
+
   <button class="save-btn" onclick="saveDay()">LOCK IN TODAY</button>
 
 </div>
 
 <div class="toast" id="toast"></div>
 
-<div id="settingsModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:200; align-items:center; justify-content:center;">
-  <div style="background:var(--bg2); padding:30px; border-radius:20px; width:90%; max-width:500px; border:1px solid var(--border2);">
-    <h2 class="acc-title">Advanced Settings</h2>
-    <button onclick="closeModal()" class="deadline-option" style="margin-top:20px; width:100%">Close</button>
-    <button onclick="sendTestEmail()" class="deadline-option" style="margin-top:10px; border-color:var(--accent-skill);">
-      📧 Test Email Auto-Send
-    </button>
-  </div>
-</div>
-
 <script>
+const API_BASE = "https://staysharp-backend-production.up.railway.app";
 const HABITS = ['book','skill','proj'];
 const DAY_NAMES = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-const state = { mins: {book:0,skill:0,proj:0}, deadline: '10pm' };
 
-// ⚙️ Set this to your Railway URL after deploying, e.g. "https://staysharp.up.railway.app"
-const BACKEND_URL = localStorage.getItem('staysharp_backend') || '';
+// Per-habit min pill max values (the "120+" pill covers 120 and above)
+const PILL_MAXES = { book: 60, skill: 60, proj: 120 };
 
+const state = { mins: {book:0, skill:0, proj:0}, deadline: '10pm' };
 
-function openSettings() {
-  document.getElementById('settingsModal').style.display = 'flex';
+function getBackendUrl() {
+  return localStorage.getItem('staysharp_backend') || '';
 }
-
-function closeModal() {
-  document.getElementById('settingsModal').style.display = 'none';
-}
-
 
 function todayKey() {
   const d = new Date();
@@ -790,6 +780,19 @@ function setSettings(d) {
   try { localStorage.setItem('staysharp_settings', JSON.stringify(d)); } catch(e) {}
 }
 
+// Show backend config section if ?debug=1 in URL
+if (new URLSearchParams(window.location.search).get('debug') === '1') {
+  document.getElementById('backendSection').style.display = 'block';
+}
+
+function saveBackendUrl() {
+  const url = document.getElementById('backendUrl').value.trim();
+  if (url) {
+    localStorage.setItem('staysharp_backend', url);
+    showToast('Backend URL saved');
+  }
+}
+
 function init() {
   const now = new Date();
   document.getElementById('dateBadge').textContent =
@@ -800,12 +803,20 @@ function init() {
   const today = todayKey();
   const todayData = store[today] || {};
 
+  // Restore backend URL input if visible
+  const savedBackend = getBackendUrl();
+  if (savedBackend) {
+    const el = document.getElementById('backendUrl');
+    if (el) el.value = savedBackend;
+  }
+
   // Restore settings
   if (settings.accEmail) document.getElementById('accEmail').value = settings.accEmail;
   if (settings.accName) document.getElementById('accName').value = settings.accName;
-  if (settings.deadline) { state.deadline = settings.deadline; selDeadline(settings.deadline); }
+  if (settings.deadline) { state.deadline = settings.deadline; selDeadline(settings.deadline, true); }
   if (settings.ntfyTopic) document.getElementById('ntfyTopic').value = settings.ntfyTopic;
   if (settings.ntfyServer) document.getElementById('ntfyServer').value = settings.ntfyServer;
+  if (settings.nudgeStart) document.getElementById('nudgeStart').value = settings.nudgeStart;
 
   // Restore today's data
   HABITS.forEach(h => {
@@ -824,7 +835,7 @@ function init() {
   buildWeekGrid(store);
   calcStreaks(store);
   checkMissedYesterday(store);
-  // scheduleDeadlineCheck();
+  scheduleDeadlineCheck();
 }
 
 function updateSubtitle(h, d) {
@@ -832,7 +843,7 @@ function updateSubtitle(h, d) {
   if (!d) return;
   const parts = [];
   if (d.mins) parts.push(d.mins + ' min');
-  if (d.note) parts.push(d.note.slice(0,30));
+  if (d.note) parts.push(d.note.slice(0, 30));
   if (parts.length) el.textContent = parts.join(' · ');
 }
 
@@ -865,32 +876,36 @@ function buildWeekGrid(store) {
 
 function calcStreaks(store) {
   const today = new Date();
-  const s = {all:0, book:0, skill:0, proj:0};
 
-  for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-    const data = store[key] || {};
-    const allDone = HABITS.every(h => data[h] && data[h].checked);
-    if (allDone) s.all++; else if (i > 0) break;
-  }
-
-  HABITS.forEach(h => {
-    const key = h === 'proj' ? 'proj' : h;
+  // FIX: Correct streak logic — break as soon as a day is missed (i > 0 check removed)
+  // For "all" streak: only count if today is complete, then walk backwards
+  function calcStreak(checkFn) {
+    let count = 0;
     for (let i = 0; i < 365; i++) {
       const d = new Date(today);
       d.setDate(today.getDate() - i);
-      const k = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-      const data = store[k] || {};
-      if (data[h] && data[h].checked) s[h]++; else if (i > 0) break;
+      const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+      const data = store[key] || {};
+      if (checkFn(data)) {
+        count++;
+      } else {
+        // Day 0 (today) being incomplete does NOT break the streak yet —
+        // give the user the rest of the day; only break on past days.
+        if (i > 0) break;
+      }
     }
-  });
+    return count;
+  }
 
-  document.getElementById('sAll').textContent = s.all;
-  document.getElementById('sBook').textContent = s.book;
-  document.getElementById('sSkill').textContent = s.skill;
-  document.getElementById('sProj').textContent = s.proj;
+  const sAll  = calcStreak(data => HABITS.every(h => data[h] && data[h].checked));
+  const sBook  = calcStreak(data => data.book  && data.book.checked);
+  const sSkill = calcStreak(data => data.skill && data.skill.checked);
+  const sProj  = calcStreak(data => data.proj  && data.proj.checked);
+
+  document.getElementById('sAll').textContent   = sAll;
+  document.getElementById('sBook').textContent  = sBook;
+  document.getElementById('sSkill').textContent = sSkill;
+  document.getElementById('sProj').textContent  = sProj;
 }
 
 function checkMissedYesterday(store) {
@@ -913,6 +928,7 @@ function checkMissedYesterday(store) {
 function showMissedBanner(msg) {
   const b = document.getElementById('missedBanner');
   b.style.display = 'flex';
+  b.className = 'missed-banner';
   b.innerHTML = `<div class="missed-icon">⚠️</div><div class="missed-text">${msg}</div>`;
 }
 
@@ -926,24 +942,35 @@ function toggleCheck(h) {
 function toggleDetail(h) {
   const det = document.getElementById('det-'+h);
   const tog = document.getElementById('tog-'+h);
-  det.classList.toggle('open');
-  tog.classList.toggle('open');
-  tog.querySelector('span') && (tog.querySelector('span').textContent = det.classList.contains('open') ? 'Collapse' : 'Log details');
+  const isOpen = det.classList.toggle('open');
+  tog.classList.toggle('open', isOpen);
+  // FIX: target the <span> that now exists in the toggle
+  const label = tog.querySelector('.tog-label');
+  if (label) label.textContent = isOpen ? 'Collapse' : 'Log details';
 }
 
+// FIX: Pill selection now uses data-val attribute for exact matching — no more >= ambiguity
 function selMin(h, m, silent) {
   state.mins[h] = m;
-  document.querySelectorAll(`#pills-${h} .min-pill`).forEach(b => {
-    const v = parseInt(b.textContent);
-    b.classList.toggle('active', v === m || (m >= 60 && b.textContent.includes('60')) || (m >= 120 && b.textContent.includes('120')));
+  document.querySelectorAll(`#pills-${h} .min-pill`).forEach(btn => {
+    const val = parseInt(btn.getAttribute('data-val'));
+    btn.classList.toggle('active', val === m);
   });
 }
 
-function selDeadline(val) {
+// FIX: deadline comparison now matches button text reliably (stripped/lowercased)
+function selDeadline(val, silent) {
   state.deadline = val;
-  document.querySelectorAll('.deadline-option').forEach(b => {
-    b.classList.toggle('active', b.textContent.toLowerCase().replace(' ','') === val);
+  document.querySelectorAll('.deadline-option').forEach(btn => {
+    const btnVal = btn.textContent.trim().toLowerCase().replace(/\s+/g, '');
+    btn.classList.toggle('active', btnVal === val);
   });
+}
+
+function getTodayLog() {
+  const store = getStore();
+  const today = todayKey();
+  return store[today] || {};
 }
 
 function saveDay() {
@@ -956,7 +983,7 @@ function saveDay() {
       checked: document.getElementById('chk-'+h).classList.contains('done'),
       mins: state.mins[h],
       note: document.getElementById('note-'+h).value,
-      ref: document.getElementById('ref-'+h).value
+      ref:  document.getElementById('ref-'+h).value
     };
     updateSubtitle(h, store[today][h]);
   });
@@ -964,11 +991,12 @@ function saveDay() {
   setStore(store);
 
   const settings = {
-    accEmail: document.getElementById('accEmail').value,
-    accName: document.getElementById('accName').value,
-    deadline: state.deadline,
-    ntfyTopic: document.getElementById('ntfyTopic').value,
-    ntfyServer: document.getElementById('ntfyServer').value
+    accEmail:   document.getElementById('accEmail').value,
+    accName:    document.getElementById('accName').value,
+    deadline:   state.deadline,
+    ntfyTopic:  document.getElementById('ntfyTopic').value,
+    ntfyServer: document.getElementById('ntfyServer').value,
+    nudgeStart: document.getElementById('nudgeStart').value
   };
   setSettings(settings);
 
@@ -984,16 +1012,17 @@ function saveDay() {
   }
 
   // Push to backend if configured
+  const BACKEND_URL = getBackendUrl();
   if (BACKEND_URL) {
     const payload = {
       date: today,
       log: store[today],
       settings: {
-        name: settings.accName,
-        ntfy_topic: settings.ntfyTopic,
+        name:        settings.accName,
+        ntfy_topic:  settings.ntfyTopic,
         ntfy_server: settings.ntfyServer || 'https://ntfy.sh',
-        deadline: settings.deadline,
-        acc_email: settings.accEmail
+        deadline:    settings.deadline,
+        acc_email:   settings.accEmail
       }
     };
     fetch(`${BACKEND_URL}/save`, {
@@ -1011,9 +1040,11 @@ function showToast(msg, warn) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-/*function scheduleDeadlineCheck() {
-  // Check every 5 minutes if deadline has passed and habits are incomplete
-  setInterval(() => {
+// FIX: Deadline check is now active — fires every 5 min
+function scheduleDeadlineCheck() {
+  const deadlineMap = {'8pm':20,'9pm':21,'10pm':22,'11pm':23,'midnight':0};
+
+  function check() {
     const now = new Date();
     const hour = now.getHours();
     const settings = getSettings();
@@ -1021,60 +1052,103 @@ function showToast(msg, warn) {
     const today = todayKey();
     const todayData = store[today] || {};
 
-    const deadlineMap = {'8pm':20,'9pm':21,'10pm':22,'11pm':23,'midnight':0};
     const deadlineHour = deadlineMap[settings.deadline || '10pm'];
-    if (hour < deadlineHour) return;
+    if (deadlineHour !== 0 && hour < deadlineHour) return;
+    if (deadlineHour === 0 && hour !== 0) return; // midnight: only at hour 0
 
     const missed = HABITS.filter(h => !todayData[h] || !todayData[h].checked);
     if (missed.length === 0) return;
 
-    // Mark that deadline email was triggered (to avoid spamming)
     const notifKey = `notif_${todayKey()}`;
-    const alreadySent = localStorage.getItem(notifKey);
-    if (alreadySent) return;
+    if (localStorage.getItem(notifKey)) return;
     localStorage.setItem(notifKey, '1');
 
-    if (settings.accEmail) {
-      triggerShameEmail(missed, settings);
-    }
-    if (settings.ntfyTopic) {
-      sendNtfy(missed, settings);
-    }
-  }, 5 * 60 * 1000);
+    if (settings.ntfyTopic) sendNtfy(missed, settings, false);
+    if (settings.accEmail && getBackendUrl()) triggerShameEmail(missed, settings);
+  }
+
+  setInterval(check, 5 * 60 * 1000);
+  check(); // also run immediately on page load in case deadline already passed
 }
-*/
+
+async function triggerShameEmail(missed, settings) {
+  const BACKEND_URL = getBackendUrl();
+  if (!BACKEND_URL) return;
+  const log = getTodayLog();
+  try {
+    await fetch(`${BACKEND_URL}/shame-email`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        date: todayKey(),
+        log,
+        settings: {
+          name:      settings.accName,
+          acc_email: settings.accEmail,
+          deadline:  settings.deadline
+        }
+      })
+    });
+  } catch(e) {
+    console.warn('Shame email failed:', e);
+  }
+}
+
+async function sendTestEmail() {
+  const BACKEND_URL = getBackendUrl();
+  if (!BACKEND_URL) { showToast('Set backend URL first', true); return; }
+  const settings = getSettings();
+  const log = getTodayLog(); // FIX: was previously undefined
+
+  showToast("Sending test email...");
+  try {
+    const res = await fetch(`${API_BASE}/test-email`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ date: todayKey(), log, settings })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast("📧 Email sent! Check your inbox.");
+    } else {
+      showToast("Error: " + (data.error || 'unknown'), true);
+    }
+  } catch(e) {
+    showToast("Server connection failed", true);
+  }
+}
+
+// FIX: Changed PUT → POST for wider ntfy server compatibility
 async function sendNtfy(missed, settings, isTest) {
-  const topic = (settings && settings.ntfyTopic) || document.getElementById('ntfyTopic').value.trim();
-  let server = (settings && settings.ntfyServer) || document.getElementById('ntfyServer').value.trim() || 'https://ntfy.sh';
-  
-  server = server.replace(/\/+$/, '').replace(new RegExp('/' + topic + '$'), '');
+  const topic  = (settings && settings.ntfyTopic)  || document.getElementById('ntfyTopic').value.trim();
+  let   server = (settings && settings.ntfyServer) || document.getElementById('ntfyServer').value.trim() || 'https://ntfy.sh';
+
+  server = server.replace(/\/+$/, '').replace(new RegExp('/' + encodeURIComponent(topic) + '$'), '');
   if (!server.startsWith('http')) server = 'https://ntfy.sh';
   if (!topic) { showToast('Enter a topic name first', true); return; }
 
   const names = {book:'Reading', skill:'Soft Skills', proj:'Side Project'};
-  const name = (settings && settings.accName) || document.getElementById('accName').value || 'You';
+  const name  = (settings && settings.accName) || document.getElementById('accName').value || 'You';
 
-  // HEADERS: Use plain text only to avoid browser crashes
   const title = isTest ? 'Stay Sharp: Connection Success' : 'Stay Sharp: Deadline Alert';
-  const msg = isTest 
-    ? '✅ Push notifications are working! Emojis are safe in the body: 📚 🗣 💻' 
+  const msg   = isTest
+    ? '✅ Push notifications are working! 📚 🗣 💻'
     : `⚠️ ${name}, habits missed: ${missed.map(h => names[h]).join(', ')}.`;
 
   try {
     await fetch(`${server}/${encodeURIComponent(topic)}`, {
-      method: 'PUT', 
-      // mode: 'no-cors' REMOVED to allow PUT method
+      method: 'POST', // FIX: was PUT
       headers: {
-        'Title': title,
-        'Priority': isTest ? '3' : '4', // Numeric priorities are more stable
-        'Tags': isTest ? 'white_check_mark' : 'warning'
+        'Title':    title,
+        'Priority': isTest ? '3' : '4',
+        'Tags':     isTest ? 'white_check_mark' : 'warning'
       },
-      body: msg // Emojis are 100% safe here
+      body: msg
     });
     showToast(isTest ? '📲 Test sent!' : '📲 Push notification fired');
   } catch(e) {
     console.error("Ntfy Error:", e);
-    showToast('Push failed — see console for details', true);
+    showToast('Push failed — check console for details', true);
   }
 }
 
@@ -1084,9 +1158,9 @@ async function sendTestNotif() {
 
 function genTopic() {
   const words = ['sharp','grind','daily','rep','focus','lock','push','stack','build','forge'];
-  const w1 = words[Math.floor(Math.random()*words.length)];
-  const w2 = words[Math.floor(Math.random()*words.length)];
-  const num = Math.floor(Math.random()*9000)+1000;
+  const w1 = words[Math.floor(Math.random() * words.length)];
+  const w2 = words[Math.floor(Math.random() * words.length)];
+  const num = Math.floor(Math.random() * 9000) + 1000;
   const topic = `${w1}-${w2}-${num}`;
   document.getElementById('ntfyTopic').value = topic;
   showToast(`Topic set: ${topic}`);
@@ -1098,45 +1172,6 @@ function copyTopic() {
   navigator.clipboard.writeText(t).then(() => showToast('Topic copied!'));
 }
 
-
-// function triggerShameEmail(missed, settings) {
-//   const names = {book:'📚 Book Reading', skill:'🗣 Soft Skills', proj:'💻 Side Project'};
-//   const missedNames = missed.map(h => names[h]).join(', ');
-//   const name = settings.accName || 'Your friend';
-
-//   // mailto fallback (opens email client)
-//   const subject = encodeURIComponent(`[Accountability] ${name} missed their habits today`);
-//   const body = encodeURIComponent(
-//     `Hi,\n\nThis is an automated accountability report.\n\n` +
-//     `${name} did NOT complete the following habits today (${new Date().toLocaleDateString()}):\n\n` +
-//     `${missed.map(h => '  ✗ ' + names[h]).join('\n')}\n\n` +
-//     `Streak is at risk. Please check in with them.\n\n` +
-//     `— Stay Sharp Tracker`
-//   );
-
-//   const mailtoLink = `mailto:${settings.accEmail}?subject=${subject}&body=${body}`;
-//   showToast('⚠️ Deadline passed — opening email to your accountability partner', true);
-
-//   setTimeout(() => {
-//     window.open(mailtoLink, '_blank');
-//   }, 1500);
-// }
-
-/*  function triggerShameEmail(missed, settings) {
-  // SHAME VALIDATION DIALOGUE
-  const confirmSend = confirm("⚠️ DEADLINE PASSED. Are you sure you want to open the shame email? Canceling will be logged as a bypass.");
-  
-  if (!confirmSend) {
-      showToast("Bypass logged. You're only cheating yourself.", true);
-      // Optional: Send a 'Bypass' notification to ntfy so you can't hide it
-      return;
-  }
-
-  // Existing mailto logic...
-  const mailtoLink = `mailto:${settings.accEmail}?subject=...`;
-  window.open(mailtoLink, '_blank');
-}
-*/
 init();
 </script>
 </body>
