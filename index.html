@@ -60,7 +60,6 @@ body::before {
   padding: 48px 24px 80px;
 }
 
-/* Header */
 .header {
   margin-bottom: 48px;
   animation: fadeUp 0.6s ease both;
@@ -95,7 +94,6 @@ body::before {
   letter-spacing: 0.04em;
 }
 
-/* Streak row */
 .streak-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -140,7 +138,6 @@ body::before {
   letter-spacing: 0.08em;
 }
 
-/* Week heatmap */
 .week-section {
   margin-bottom: 36px;
   animation: fadeUp 0.6s 0.2s ease both;
@@ -193,7 +190,6 @@ body::before {
 }
 .week-cell.full .week-cell-fill { opacity: 1; }
 
-/* Habit cards */
 .habits-section {
   display: flex;
   flex-direction: column;
@@ -334,7 +330,6 @@ textarea.detail-input {
   line-height: 1.6;
 }
 
-/* Accountability section */
 .accountability-section {
   background: var(--bg2);
   border: 1px solid var(--border);
@@ -419,7 +414,6 @@ textarea.detail-input {
   color: #ff8888;
 }
 
-/* Save button */
 .save-btn {
   width: 100%;
   padding: 16px;
@@ -448,7 +442,6 @@ textarea.detail-input {
 .save-btn:hover::before { opacity: 1; }
 .save-btn:active { transform: scale(0.99) translateY(0); }
 
-/* Toast */
 .toast {
   position: fixed;
   bottom: 32px;
@@ -473,7 +466,6 @@ textarea.detail-input {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Missed banner */
 .missed-banner {
   background: rgba(255,68,68,0.06);
   border: 1px solid rgba(255,68,68,0.18);
@@ -488,6 +480,17 @@ textarea.detail-input {
 .missed-icon { font-size: 20px; }
 .missed-text { font-size: 13px; color: #ff9999; line-height: 1.5; }
 .missed-text strong { color: #ff6666; }
+
+.sync-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 16px;
+  letter-spacing: 0.06em;
+}
+.sync-badge.ok { color: var(--accent-proj); }
+.sync-badge.err { color: var(--danger); }
 
 @media (max-width: 480px) {
   .streak-row { grid-template-columns: repeat(2, 1fr); }
@@ -512,9 +515,9 @@ textarea.detail-input {
     <div class="tagline">No excuses. No shortcuts. Just daily reps.</div>
   </div>
 
+  <div id="syncBadge" class="sync-badge">Syncing from cloud...</div>
   <div id="missedBanner" style="display:none"></div>
 
-  <!-- Streaks -->
   <div class="streak-row">
     <div class="streak-tile fire">
       <div class="streak-num" id="sAll">0</div>
@@ -534,17 +537,14 @@ textarea.detail-input {
     </div>
   </div>
 
-  <!-- Week -->
   <div class="week-section">
     <div class="section-label">Last 7 days</div>
     <div class="week-row" id="weekRow"></div>
   </div>
 
-  <!-- Habits -->
   <div class="section-label" style="margin-bottom:12px">Today's reps</div>
   <div class="habits-section">
 
-    <!-- Book -->
     <div class="habit-card" id="card-book">
       <div class="habit-header" onclick="toggleDetail('book')">
         <div class="habit-icon-wrap book">📚</div>
@@ -579,7 +579,6 @@ textarea.detail-input {
       </div>
     </div>
 
-    <!-- Skill -->
     <div class="habit-card" id="card-skill">
       <div class="habit-header" onclick="toggleDetail('skill')">
         <div class="habit-icon-wrap skill">🗣</div>
@@ -614,7 +613,6 @@ textarea.detail-input {
       </div>
     </div>
 
-    <!-- Project -->
     <div class="habit-card" id="card-proj">
       <div class="habit-header" onclick="toggleDetail('proj')">
         <div class="habit-icon-wrap proj">💻</div>
@@ -671,7 +669,6 @@ textarea.detail-input {
   <div class="accountability-section">
     <div class="acc-title">Accountability Partner</div>
     <div class="acc-desc">If you miss a habit past your deadline, an email shame report gets sent automatically. Make it someone whose opinion matters.</div>
-
     <div class="acc-row">
       <span class="acc-label">Their email</span>
       <input class="acc-input" id="accEmail" type="email" placeholder="accountability@partner.com" />
@@ -680,7 +677,6 @@ textarea.detail-input {
       <span class="acc-label">Your name</span>
       <input class="acc-input" id="accName" type="text" placeholder="Suyash" />
     </div>
-
     <div class="section-label" style="margin-top:16px; margin-bottom:8px">Send shame email if not done by</div>
     <div class="deadline-row">
       <button class="deadline-option" onclick="selDeadline('8pm')">8 PM</button>
@@ -694,50 +690,22 @@ textarea.detail-input {
   <!-- Push Notification via ntfy -->
   <div class="accountability-section" style="animation-delay:0.45s">
     <div class="acc-title" style="color: var(--accent-proj)">📲 Phone Push Alerts</div>
-    <div class="acc-desc">Get a push notification straight to your phone via <strong style="color:var(--text)">ntfy</strong> — free, no account needed for basic use. Works on iOS and Android. The page pings your phone at your chosen deadline if any habit is undone.</div>
-
+    <div class="acc-desc">Get a push notification straight to your phone via <strong style="color:var(--text)">ntfy</strong> — free, no account needed for basic use.</div>
     <div class="acc-row" style="margin-bottom:6px">
       <span class="acc-label">Topic name</span>
       <input class="acc-input" id="ntfyTopic" type="text" placeholder="e.g. suyash-staysharp-9x3k" />
     </div>
     <div style="font-size:11px; color:var(--muted); margin-bottom:14px; padding-left: 90px; line-height:1.7">
-      Pick any unique name — this is your private channel. The harder to guess, the better.<br>
+      Pick any unique name — this is your private channel.<br>
       <span style="color: #4fa3e0; cursor:pointer" onclick="genTopic()">↻ Generate a random one for me</span>
     </div>
-
     <div class="acc-row">
       <span class="acc-label">Server</span>
       <input class="acc-input" id="ntfyServer" type="text" value="https://ntfy.sh" />
     </div>
-
-    <div style="margin-top:16px; background: var(--bg3); border-radius:12px; padding:14px 16px; border: 1px solid var(--border)">
-      <div style="font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; font-family:'DM Mono',monospace; margin-bottom:10px">Setup steps</div>
-      <div style="font-size:12px; color:var(--muted); line-height:2">
-        <span style="color:var(--accent-proj); font-weight:500">1.</span> Install the <span style="color:var(--text)">ntfy</span> app →
-        <span style="color:#4fa3e0; cursor:pointer" onclick="window.open('https://apps.apple.com/us/app/ntfy/id1625396347','_blank')">iOS App Store</span> /
-        <span style="color:#4fa3e0; cursor:pointer" onclick="window.open('https://play.google.com/store/apps/details?id=io.heckel.ntfy','_blank')">Android Play Store</span><br>
-        <span style="color:var(--accent-proj); font-weight:500">2.</span> Open the app → tap <span style="color:var(--text)">"Subscribe to topic"</span><br>
-        <span style="color:var(--accent-proj); font-weight:500">3.</span> Enter your topic name above → hit subscribe<br>
-        <span style="color:var(--accent-proj); font-weight:500">4.</span> Click <span style="color:var(--text)">"Test notification"</span> below to confirm it works
-      </div>
-    </div>
-
     <div style="display:flex; gap:10px; margin-top:14px">
       <button class="deadline-option" style="flex:2; font-size:13px" onclick="sendTestNotif()">📲 Test notification</button>
       <button class="deadline-option" style="flex:1; font-size:12px" onclick="copyTopic()">Copy topic</button>
-    </div>
-  </div>
-
-  <!-- Backend config (hidden by default, set via console or URL param) -->
-  <div id="backendSection" style="display:none; margin-bottom:28px;">
-    <div class="accountability-section">
-      <div class="acc-title">⚙️ Backend URL</div>
-      <div class="acc-row">
-        <span class="acc-label">URL</span>
-        <input class="acc-input" id="backendUrl" type="text" placeholder="https://your-backend.railway.app" />
-      </div>
-      <button class="deadline-option" style="width:100%; margin-top:10px" onclick="saveBackendUrl()">Save Backend URL</button>
-      <button class="deadline-option" style="width:100%; margin-top:8px; border-color:var(--accent-skill)" onclick="sendTestEmail()">📧 Test Shame Email</button>
     </div>
   </div>
 
@@ -748,19 +716,10 @@ textarea.detail-input {
 <div class="toast" id="toast"></div>
 
 <script>
-const API_BASE = "https://staysharp-backend-production.up.railway.app";
+const BACKEND_URL = 'https://staysharp-backend-production.up.railway.app';
 const HABITS = ['book','skill','proj'];
 const DAY_NAMES = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-
-// Per-habit min pill max values (the "120+" pill covers 120 and above)
-const PILL_MAXES = { book: 60, skill: 60, proj: 120 };
-
 const state = { mins: {book:0, skill:0, proj:0}, deadline: '10pm' };
-
-function getBackendUrl() {
-  return localStorage.getItem('staysharp_backend') 
-    || 'https://staysharp-backend-production.up.railway.app';
-}
 
 function todayKey() {
   const d = new Date();
@@ -773,53 +732,79 @@ function getStore() {
 function setStore(d) {
   try { localStorage.setItem('staysharp_v2', JSON.stringify(d)); } catch(e) {}
 }
-
 function getSettings() {
   try { return JSON.parse(localStorage.getItem('staysharp_settings') || '{}'); } catch(e) { return {}; }
 }
 function setSettings(d) {
   try { localStorage.setItem('staysharp_settings', JSON.stringify(d)); } catch(e) {}
 }
-
-// Show backend config section if ?debug=1 in URL
-if (new URLSearchParams(window.location.search).get('debug') === '1') {
-  document.getElementById('backendSection').style.display = 'block';
+function getTodayLog() {
+  return getStore()[todayKey()] || {};
 }
 
-function saveBackendUrl() {
-  const url = document.getElementById('backendUrl').value.trim();
-  if (url) {
-    localStorage.setItem('staysharp_backend', url);
-    showToast('Backend URL saved');
+// ── CLOUD SYNC ON LOAD ──────────────────────────────────────────────────────
+// Fetches all logs from the backend and merges into localStorage.
+// Cloud wins for any date that exists in Supabase.
+async function syncFromCloud() {
+  const badge = document.getElementById('syncBadge');
+  try {
+    const res = await fetch(`${BACKEND_URL}/get-all`);
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+
+    const store = getStore();
+    // Merge: cloud data overwrites local for matching dates
+    Object.assign(store, data.data);
+    setStore(store);
+
+    // Also sync settings from cloud
+    const sRes = await fetch(`${BACKEND_URL}/get-settings`);
+    const sData = await sRes.json();
+    if (sData.ok && sData.settings && Object.keys(sData.settings).length > 0) {
+      // Only overwrite local settings if cloud has them
+      const merged = Object.assign({}, sData.settings, getSettings());
+      // Cloud wins for email/name/deadline; local wins for ntfy topic (device-specific)
+      merged.acc_email = sData.settings.acc_email || merged.acc_email;
+      merged.accEmail  = sData.settings.acc_email || merged.accEmail;
+      merged.accName   = sData.settings.name       || merged.accName;
+      merged.deadline  = sData.settings.deadline   || merged.deadline;
+      setSettings(merged);
+    }
+
+    badge.textContent = '✓ Synced from cloud';
+    badge.className = 'sync-badge ok';
+    setTimeout(() => badge.style.display = 'none', 2000);
+
+    return store;
+  } catch(e) {
+    console.warn('Cloud sync failed, using local data:', e);
+    badge.textContent = '⚠ Offline — showing local data';
+    badge.className = 'sync-badge err';
+    setTimeout(() => badge.style.display = 'none', 3000);
+    return getStore();
   }
 }
 
-function init() {
+async function init() {
   const now = new Date();
   document.getElementById('dateBadge').textContent =
     now.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric', year:'numeric'}).toUpperCase();
 
-  const store = getStore();
+  // Sync from cloud first, then render
+  const store = await syncFromCloud();
   const settings = getSettings();
   const today = todayKey();
   const todayData = store[today] || {};
 
-  // Restore backend URL input if visible
-  const savedBackend = getBackendUrl();
-  if (savedBackend) {
-    const el = document.getElementById('backendUrl');
-    if (el) el.value = savedBackend;
-  }
-
   // Restore settings
   if (settings.accEmail) document.getElementById('accEmail').value = settings.accEmail;
-  if (settings.accName) document.getElementById('accName').value = settings.accName;
+  if (settings.accName)  document.getElementById('accName').value  = settings.accName;
   if (settings.deadline) { state.deadline = settings.deadline; selDeadline(settings.deadline, true); }
-  if (settings.ntfyTopic) document.getElementById('ntfyTopic').value = settings.ntfyTopic;
+  if (settings.ntfyTopic)  document.getElementById('ntfyTopic').value  = settings.ntfyTopic;
   if (settings.ntfyServer) document.getElementById('ntfyServer').value = settings.ntfyServer;
   if (settings.nudgeStart) document.getElementById('nudgeStart').value = settings.nudgeStart;
 
-  // Restore today's data
+  // Restore today's habits
   HABITS.forEach(h => {
     const d = todayData[h];
     if (!d) return;
@@ -829,7 +814,7 @@ function init() {
     }
     if (d.mins) selMin(h, d.mins, true);
     if (d.note) document.getElementById('note-'+h).value = d.note;
-    if (d.ref) document.getElementById('ref-'+h).value = d.ref;
+    if (d.ref)  document.getElementById('ref-'+h).value  = d.ref;
     updateSubtitle(h, d);
   });
 
@@ -859,27 +844,21 @@ function buildWeekGrid(store) {
     const data = store[key] || {};
     const cell = document.createElement('div');
     cell.className = 'week-cell' + (i === 0 ? ' today' : '');
-    const done = HABITS.filter(h => data[h] && data[h].checked);
-    if (done.length === 3) cell.classList.add('full');
-
+    if (HABITS.filter(h => data[h] && data[h].checked).length === 3) cell.classList.add('full');
     cell.innerHTML = `
       <div class="week-cell-fill"></div>
       <div class="week-cell-day">${DAY_NAMES[d.getDay()]}</div>
       <div class="week-cell-dots">
-        <div class="week-dot ${data.book && data.book.checked ? 'book' : ''}"></div>
+        <div class="week-dot ${data.book  && data.book.checked  ? 'book'  : ''}"></div>
         <div class="week-dot ${data.skill && data.skill.checked ? 'skill' : ''}"></div>
-        <div class="week-dot ${data.proj && data.proj.checked ? 'proj' : ''}"></div>
-      </div>
-    `;
+        <div class="week-dot ${data.proj  && data.proj.checked  ? 'proj'  : ''}"></div>
+      </div>`;
     grid.appendChild(cell);
   }
 }
 
 function calcStreaks(store) {
   const today = new Date();
-
-  // FIX: Correct streak logic — break as soon as a day is missed (i > 0 check removed)
-  // For "all" streak: only count if today is complete, then walk backwards
   function calcStreak(checkFn) {
     let count = 0;
     for (let i = 0; i < 365; i++) {
@@ -887,26 +866,15 @@ function calcStreaks(store) {
       d.setDate(today.getDate() - i);
       const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
       const data = store[key] || {};
-      if (checkFn(data)) {
-        count++;
-      } else {
-        // Day 0 (today) being incomplete does NOT break the streak yet —
-        // give the user the rest of the day; only break on past days.
-        if (i > 0) break;
-      }
+      if (checkFn(data)) { count++; }
+      else if (i > 0) break;
     }
     return count;
   }
-
-  const sAll  = calcStreak(data => HABITS.every(h => data[h] && data[h].checked));
-  const sBook  = calcStreak(data => data.book  && data.book.checked);
-  const sSkill = calcStreak(data => data.skill && data.skill.checked);
-  const sProj  = calcStreak(data => data.proj  && data.proj.checked);
-
-  document.getElementById('sAll').textContent   = sAll;
-  document.getElementById('sBook').textContent  = sBook;
-  document.getElementById('sSkill').textContent = sSkill;
-  document.getElementById('sProj').textContent  = sProj;
+  document.getElementById('sAll').textContent   = calcStreak(data => HABITS.every(h => data[h] && data[h].checked));
+  document.getElementById('sBook').textContent  = calcStreak(data => data.book  && data.book.checked);
+  document.getElementById('sSkill').textContent = calcStreak(data => data.skill && data.skill.checked);
+  document.getElementById('sProj').textContent  = calcStreak(data => data.proj  && data.proj.checked);
 }
 
 function checkMissedYesterday(store) {
@@ -914,15 +882,11 @@ function checkMissedYesterday(store) {
   y.setDate(y.getDate() - 1);
   const key = `${y.getFullYear()}-${y.getMonth()+1}-${y.getDate()}`;
   const data = store[key];
-  if (!data) {
-    showMissedBanner("Yesterday had no log at all.");
-    return;
-  }
+  if (!data) { showMissedBanner("Yesterday had no log at all."); return; }
   const missed = HABITS.filter(h => !data[h] || !data[h].checked);
   if (missed.length > 0) {
     const names = {book:'Reading', skill:'Soft Skills', proj:'Side Project'};
-    const list = missed.map(h => names[h]).join(', ');
-    showMissedBanner(`Yesterday you missed: <strong>${list}</strong>. Don't let it become a pattern.`);
+    showMissedBanner(`Yesterday you missed: <strong>${missed.map(h => names[h]).join(', ')}</strong>. Don't let it become a pattern.`);
   }
 }
 
@@ -934,10 +898,8 @@ function showMissedBanner(msg) {
 }
 
 function toggleCheck(h) {
-  const btn = document.getElementById('chk-'+h);
-  const card = document.getElementById('card-'+h);
-  btn.classList.toggle('done');
-  card.classList.toggle('checked');
+  document.getElementById('chk-'+h).classList.toggle('done');
+  document.getElementById('card-'+h).classList.toggle('checked');
 }
 
 function toggleDetail(h) {
@@ -945,33 +907,22 @@ function toggleDetail(h) {
   const tog = document.getElementById('tog-'+h);
   const isOpen = det.classList.toggle('open');
   tog.classList.toggle('open', isOpen);
-  // FIX: target the <span> that now exists in the toggle
   const label = tog.querySelector('.tog-label');
   if (label) label.textContent = isOpen ? 'Collapse' : 'Log details';
 }
 
-// FIX: Pill selection now uses data-val attribute for exact matching — no more >= ambiguity
 function selMin(h, m, silent) {
   state.mins[h] = m;
   document.querySelectorAll(`#pills-${h} .min-pill`).forEach(btn => {
-    const val = parseInt(btn.getAttribute('data-val'));
-    btn.classList.toggle('active', val === m);
+    btn.classList.toggle('active', parseInt(btn.getAttribute('data-val')) === m);
   });
 }
 
-// FIX: deadline comparison now matches button text reliably (stripped/lowercased)
 function selDeadline(val, silent) {
   state.deadline = val;
   document.querySelectorAll('.deadline-option').forEach(btn => {
-    const btnVal = btn.textContent.trim().toLowerCase().replace(/\s+/g, '');
-    btn.classList.toggle('active', btnVal === val);
+    btn.classList.toggle('active', btn.textContent.trim().toLowerCase().replace(/\s+/g,'') === val);
   });
-}
-
-function getTodayLog() {
-  const store = getStore();
-  const today = todayKey();
-  return store[today] || {};
 }
 
 function saveDay() {
@@ -1000,22 +951,17 @@ function saveDay() {
     nudgeStart: document.getElementById('nudgeStart').value
   };
   setSettings(settings);
-
   buildWeekGrid(store);
   calcStreaks(store);
 
   const allDone = HABITS.every(h => store[today][h].checked);
-  if (allDone) {
-    showToast('🔥 All three done. Streak intact.');
-  } else {
-    const doneCount = HABITS.filter(h => store[today][h].checked).length;
-    showToast(`Saved. ${doneCount}/3 habits logged.`);
-  }
+  showToast(allDone ? '🔥 All three done. Streak intact.' : `Saved. ${HABITS.filter(h => store[today][h].checked).length}/3 habits logged.`);
 
-  // Push to backend if configured
-  const BACKEND_URL = getBackendUrl();
-  if (BACKEND_URL) {
-    const payload = {
+  // Push to backend → Supabase
+  fetch(`${BACKEND_URL}/save`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
       date: today,
       log: store[today],
       settings: {
@@ -1025,13 +971,8 @@ function saveDay() {
         deadline:    settings.deadline,
         acc_email:   settings.accEmail
       }
-    };
-    fetch(`${BACKEND_URL}/save`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(payload)
-    }).catch(() => console.warn('Backend sync failed — running offline'));
-  }
+    })
+  }).catch(() => console.warn('Backend sync failed — saved locally only'));
 }
 
 function showToast(msg, warn) {
@@ -1041,128 +982,55 @@ function showToast(msg, warn) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// FIX: Deadline check is now active — fires every 5 min
 function scheduleDeadlineCheck() {
   const deadlineMap = {'8pm':20,'9pm':21,'10pm':22,'11pm':23,'midnight':0};
-
   function check() {
     const now = new Date();
     const hour = now.getHours();
     const settings = getSettings();
-    const store = getStore();
-    const today = todayKey();
-    const todayData = store[today] || {};
-
+    const todayData = getStore()[todayKey()] || {};
     const deadlineHour = deadlineMap[settings.deadline || '10pm'];
     if (deadlineHour !== 0 && hour < deadlineHour) return;
-    if (deadlineHour === 0 && hour !== 0) return; // midnight: only at hour 0
-
+    if (deadlineHour === 0 && hour !== 0) return;
     const missed = HABITS.filter(h => !todayData[h] || !todayData[h].checked);
     if (missed.length === 0) return;
-
     const notifKey = `notif_${todayKey()}`;
     if (localStorage.getItem(notifKey)) return;
     localStorage.setItem(notifKey, '1');
-
     if (settings.ntfyTopic) sendNtfy(missed, settings, false);
-    if (settings.accEmail && getBackendUrl()) triggerShameEmail(missed, settings);
   }
-
   setInterval(check, 5 * 60 * 1000);
-  check(); // also run immediately on page load in case deadline already passed
+  check();
 }
 
-async function triggerShameEmail(missed, settings) {
-  const BACKEND_URL = getBackendUrl();
-  if (!BACKEND_URL) return;
-  const log = getTodayLog();
-  try {
-    await fetch(`${BACKEND_URL}/shame-email`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        date: todayKey(),
-        log,
-        settings: {
-          name:      settings.accName,
-          acc_email: settings.accEmail,
-          deadline:  settings.deadline
-        }
-      })
-    });
-  } catch(e) {
-    console.warn('Shame email failed:', e);
-  }
-}
-
-async function sendTestEmail() {
-  const BACKEND_URL = getBackendUrl();
-  if (!BACKEND_URL) { showToast('Set backend URL first', true); return; }
-  const settings = getSettings();
-  const log = getTodayLog(); // FIX: was previously undefined
-
-  showToast("Sending test email...");
-  try {
-    const res = await fetch(`${API_BASE}/test-email`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ date: todayKey(), log, settings })
-    });
-    const data = await res.json();
-    if (data.ok) {
-      showToast("📧 Email sent! Check your inbox.");
-    } else {
-      showToast("Error: " + (data.error || 'unknown'), true);
-    }
-  } catch(e) {
-    showToast("Server connection failed", true);
-  }
-}
-
-// FIX: Changed PUT → POST for wider ntfy server compatibility
 async function sendNtfy(missed, settings, isTest) {
   const topic  = (settings && settings.ntfyTopic)  || document.getElementById('ntfyTopic').value.trim();
   let   server = (settings && settings.ntfyServer) || document.getElementById('ntfyServer').value.trim() || 'https://ntfy.sh';
-
-  server = server.replace(/\/+$/, '').replace(new RegExp('/' + encodeURIComponent(topic) + '$'), '');
+  server = server.replace(/\/+$/, '');
   if (!server.startsWith('http')) server = 'https://ntfy.sh';
   if (!topic) { showToast('Enter a topic name first', true); return; }
-
   const names = {book:'Reading', skill:'Soft Skills', proj:'Side Project'};
   const name  = (settings && settings.accName) || document.getElementById('accName').value || 'You';
-
   const title = isTest ? 'Stay Sharp: Connection Success' : 'Stay Sharp: Deadline Alert';
-  const msg   = isTest
-    ? '✅ Push notifications are working! 📚 🗣 💻'
-    : `⚠️ ${name}, habits missed: ${missed.map(h => names[h]).join(', ')}.`;
-
+  const msg   = isTest ? '✅ Push notifications are working! 📚 🗣 💻'
+                       : `⚠️ ${name}, habits missed: ${missed.map(h => names[h]).join(', ')}.`;
   try {
     await fetch(`${server}/${encodeURIComponent(topic)}`, {
-      method: 'POST', // FIX: was PUT
-      headers: {
-        'Title':    title,
-        'Priority': isTest ? '3' : '4',
-        'Tags':     isTest ? 'white_check_mark' : 'warning'
-      },
+      method: 'POST',
+      headers: { 'Title': title, 'Priority': isTest ? '3' : '4', 'Tags': isTest ? 'white_check_mark' : 'warning' },
       body: msg
     });
     showToast(isTest ? '📲 Test sent!' : '📲 Push notification fired');
   } catch(e) {
-    console.error("Ntfy Error:", e);
-    showToast('Push failed — check console for details', true);
+    showToast('Push failed — check console', true);
   }
 }
 
-async function sendTestNotif() {
-  await sendNtfy([], null, true);
-}
+async function sendTestNotif() { await sendNtfy([], null, true); }
 
 function genTopic() {
   const words = ['sharp','grind','daily','rep','focus','lock','push','stack','build','forge'];
-  const w1 = words[Math.floor(Math.random() * words.length)];
-  const w2 = words[Math.floor(Math.random() * words.length)];
-  const num = Math.floor(Math.random() * 9000) + 1000;
-  const topic = `${w1}-${w2}-${num}`;
+  const topic = `${words[Math.floor(Math.random()*words.length)]}-${words[Math.floor(Math.random()*words.length)]}-${Math.floor(Math.random()*9000)+1000}`;
   document.getElementById('ntfyTopic').value = topic;
   showToast(`Topic set: ${topic}`);
 }

@@ -97,6 +97,31 @@ async def health():
         "store_rows": len(store)
     }
 
+@app.get("/get-all")
+async def get_all():
+    """Return all logs — frontend uses this to sync on load from any device."""
+    try:
+        # Return flattened: { "2026-3-29": { book: {...}, skill: {...}, proj: {...} }, ... }
+        result = {}
+        for date, entry in store.items():
+            result[date] = entry.get("log", {})
+        return {"ok": True, "data": result}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+@app.get("/get-settings")
+async def get_settings():
+    """Return the most recently saved settings."""
+    try:
+        if not store:
+            return {"ok": True, "settings": {}}
+        # Get settings from the most recent date
+        latest_date = sorted(store.keys())[-1]
+        settings = store[latest_date].get("settings", {})
+        return {"ok": True, "settings": settings}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
 @app.post("/save")
 async def save_day(payload: SavePayload):
     try:
