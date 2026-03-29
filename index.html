@@ -820,7 +820,7 @@ function init() {
   buildWeekGrid(store);
   calcStreaks(store);
   checkMissedYesterday(store);
-  scheduleDeadlineCheck();
+  // scheduleDeadlineCheck();
 }
 
 function updateSubtitle(h, d) {
@@ -1007,7 +1007,7 @@ function showToast(msg, warn) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-function scheduleDeadlineCheck() {
+/*function scheduleDeadlineCheck() {
   // Check every 5 minutes if deadline has passed and habits are incomplete
   setInterval(() => {
     const now = new Date();
@@ -1038,7 +1038,7 @@ function scheduleDeadlineCheck() {
     }
   }, 5 * 60 * 1000);
 }
-
+*/
 async function sendNtfy(missed, settings, isTest) {
   const topic = (settings && settings.ntfyTopic) || document.getElementById('ntfyTopic').value.trim();
   let server = (settings && settings.ntfyServer) || document.getElementById('ntfyServer').value.trim() || 'https://ntfy.sh';
@@ -1117,7 +1117,7 @@ function copyTopic() {
 //   }, 1500);
 // }
 
-function triggerShameEmail(missed, settings) {
+/*  function triggerShameEmail(missed, settings) {
   // SHAME VALIDATION DIALOGUE
   const confirmSend = confirm("⚠️ DEADLINE PASSED. Are you sure you want to open the shame email? Canceling will be logged as a bypass.");
   
@@ -1131,6 +1131,7 @@ function triggerShameEmail(missed, settings) {
   const mailtoLink = `mailto:${settings.accEmail}?subject=...`;
   window.open(mailtoLink, '_blank');
 }
+*/
 init();
 </script>
 </body>

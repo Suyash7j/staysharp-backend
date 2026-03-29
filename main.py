@@ -191,6 +191,10 @@ notified_today = set()  # tracks which dates we already fired for
             notified_today.add(today_key)
         except Exception as e:
             print(f"ntfy error: {e}")
+import resend
+
+# 1. Set your API Key (Get this from resend.com)
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 async def deadline_checker():
     while True:
@@ -199,21 +203,25 @@ async def deadline_checker():
         
         for user_id, entry in store.items():
             settings = entry.get("settings", {})
-            nudge_start = int(settings.get("nudge_start", 19)) # Default 7pm
             deadline_hour = DEADLINE_HOURS.get(settings.get("deadline", "10pm"), 22)
-
-            log = entry.get("log", {}).get(today_key, {})
-            missed = [h for h in ["book", "skill", "proj"] if not log.get(h, {}).get("checked", False)]
             
-            if not missed: continue
-
-            # 1. Hourly Nudges (Every hour at :00)
-            if nudge_start <= now.hour < deadline_hour and now.minute == 0:
-                await send_ntfy(settings, f"Hourly Nudge: {len(missed)} habits remaining!")
-
-            # 2. Final Deadline Alert
+            # Only trigger exactly at the deadline hour/minute
             if now.hour == deadline_hour and now.minute == 0:
-                await send_ntfy(settings, "🚨 FINAL DEADLINE. Shame email triggered.", priority="urgent")
+                log = entry.get("log", {}).get(today_key, {})
+                missed = [h for h in ["book", "skill", "proj"] if not log.get(h, {}).get("checked", False)]
+                
+                if missed:
+                    # AUTOSEND LOGIC
+                    try:
+                        resend.Emails.send({
+                            "from": "StaySharp <onboarding@resend.dev>",
+                            "to": settings.get("acc_email"),
+                            "subject": f"⚠️ Accountability Report: {settings.get('name')} missed habits",
+                            "html": f"<p>This is an automated report. {settings.get('name')} failed to complete: {', '.join(missed)}.</p>"
+                        })
+                        print(f"Shame email autosent to {settings.get('acc_email')}")
+                    except Exception as e:
+                        print(f"Email failed: {e}")
         
         await asyncio.sleep(60)
 
