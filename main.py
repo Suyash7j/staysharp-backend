@@ -11,12 +11,30 @@ import os
 app = FastAPI()
 
 # In your staysharp-backend/main.py
+# Updated CORS section in main.py
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://staysharp-1010.netlify.app"], 
-    allow_methods=["GET", "POST"],
+    allow_origins=["https://staysharp-1010.netlify.app"], # Restricted to your site only
+    allow_methods=["GET", "POST", "PUT"], # Added PUT
     allow_headers=["*"],
 )
+
+# Updated ntfy call in deadline_checker
+try:
+    async with httpx.AsyncClient() as client:
+        await client.put( # Switched to PUT
+            f"{ntfy_server}/{ntfy_topic}",
+            content=f"Missed today: {missed_str}. Deadline passed — get it done.",
+            headers={
+                "Title": f"⚠️ {name}, you slipped today",
+                "Priority": "high",
+                "Tags": "warning"
+            }
+        )
+    print(f"[{now.isoformat()}] Fired ntfy for {today_key}")
+    notified_today.add(today_key)
+except Exception as e:
+    print(f"ntfy error: {e}")
 
 # In-memory store (persists while server is running)
 # For true persistence across restarts, this writes to a JSON file too

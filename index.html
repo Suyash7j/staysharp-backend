@@ -1004,7 +1004,8 @@ function scheduleDeadlineCheck() {
 async function sendNtfy(missed, settings, isTest) {
   const topic = (settings && settings.ntfyTopic) || document.getElementById('ntfyTopic').value.trim();
   let server = (settings && settings.ntfyServer) || document.getElementById('ntfyServer').value.trim() || 'https://ntfy.sh';
-  // Strip topic name if user accidentally appended it to server field
+  
+  // Cleanup server URL
   server = server.replace(/\/+$/, '').replace(new RegExp('/' + topic + '$'), '');
   if (!server.startsWith('http')) server = 'https://ntfy.sh';
   if (!topic) { showToast('Enter a topic name first', true); return; }
@@ -1018,8 +1019,10 @@ async function sendNtfy(missed, settings, isTest) {
     : `Missed today: ${missed.map(h => names[h]).join(', ')}. Get it done.`;
 
   try {
+    // FIX: Switched to PUT and added mode: 'no-cors' to bypass browser blocks
     await fetch(`${server}/${encodeURIComponent(topic)}`, {
-      method: 'PUT',
+      method: 'PUT', 
+      mode: 'no-cors',
       headers: {
         'Title': title,
         'Priority': isTest ? 'default' : 'high',
@@ -1029,6 +1032,7 @@ async function sendNtfy(missed, settings, isTest) {
     });
     showToast(isTest ? '📲 Test sent — check your phone!' : '📲 Push notification fired');
   } catch(e) {
+    console.error("Ntfy Error:", e);
     showToast('Push failed — check topic name & server', true);
   }
 }
