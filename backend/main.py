@@ -28,7 +28,7 @@ resend.api_key = os.environ.get("RESEND_API_KEY")
 # --- CORS ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://suyash7j.github.io/staysharp-backend"],
+    allow_origins=["https://suyash7j.github.io"],
     allow_methods=["GET", "POST", "PUT", "OPTIONS"],
     allow_headers=["*"],
 )
