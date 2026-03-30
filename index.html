@@ -141,17 +141,26 @@ select.detail-input option { background: var(--bg3); }
 
 /* Drills */
 .drill-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.drill-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; transition: all 0.15s; user-select: none; }
-.drill-item:hover { border-color: var(--border2); }
-.drill-item.done { border-color: rgba(62,207,142,0.35); background: rgba(62,207,142,0.05); }
+.drill-item { background: var(--bg3); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.15s; }
+.drill-item.done { border-color: rgba(62,207,142,0.35); background: rgba(62,207,142,0.04); }
+.drill-header { display: flex; align-items: center; gap: 10px; padding: 10px 12px; cursor: pointer; user-select: none; }
 .drill-check { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
 .drill-item.done .drill-check { background: var(--accent-proj); border-color: var(--accent-proj); }
 .drill-item.done .drill-check::after { content: '✓'; font-size: 11px; color: #0a0a0f; font-weight: 700; }
+.drill-text-wrap { flex: 1; }
 .drill-text { font-size: 12px; color: var(--muted); line-height: 1.3; }
 .drill-item.done .drill-text { color: var(--text); }
-.drill-tag { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; }
+.drill-tag { font-size: 9px; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'DM Mono', monospace; margin-bottom: 2px; }
 .drill-tag.vocal { color: var(--accent-skill); }
 .drill-tag.nonvocal { color: var(--accent-book); }
+.drill-expand-icon { font-size: 10px; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+.drill-item.info-open .drill-expand-icon { transform: rotate(180deg); }
+.drill-info { display: none; padding: 0 12px 12px; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 0; }
+.drill-item.info-open .drill-info { display: block; }
+.drill-how { font-size: 11px; color: var(--muted); line-height: 1.7; }
+.drill-how strong { color: var(--text); font-weight: 500; display: block; margin-bottom: 3px; }
+.drill-how ol { padding-left: 16px; }
+.drill-how ol li { margin-bottom: 3px; }
 
 /* Accountability */
 .accountability-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 24px; margin-bottom: 28px; animation: fadeUp 0.6s 0.4s ease both; position: relative; overflow: hidden; }
@@ -257,7 +266,7 @@ select.detail-input option { background: var(--bg3); }
   <div class="section-label" style="margin-bottom:12px">Today's reps</div>
   <div class="habits-section">
 
-    <!-- BOOK -->
+    <!-- BOOK — no category, no energy, no decision -->
     <div class="habit-card" id="card-book">
       <div class="habit-header" onclick="toggleDetail('book')">
         <div class="habit-icon-wrap book">📚</div>
@@ -270,29 +279,12 @@ select.detail-input option { background: var(--bg3); }
       </div>
       <div class="habit-details" id="det-book">
         <div class="detail-group">
-          <div class="detail-group-label">Category</div>
-          <select class="detail-input" id="cat-book">
-            <option value="">Select category</option>
-            <option value="Reading">Reading</option>
-            <option value="Vocal Drills">Vocal Drills</option>
-            <option value="Non-Vocal Cues">Non-Vocal Cues</option>
-            <option value="Decision Practice">Decision Practice</option>
-          </select>
-        </div>
-        <div class="detail-group">
           <div class="detail-group-label">Time spent</div>
           <div class="min-pills" id="pills-book">
             <button class="min-pill" data-val="15" onclick="selMin('book',15)">15 min</button>
             <button class="min-pill" data-val="30" onclick="selMin('book',30)">30 min</button>
             <button class="min-pill" data-val="45" onclick="selMin('book',45)">45 min</button>
             <button class="min-pill" data-val="60" onclick="selMin('book',60)">60+ min</button>
-          </div>
-        </div>
-        <div class="detail-group">
-          <div class="detail-group-label">Energy level — <span id="energy-val-book">5</span>/10</div>
-          <div class="energy-wrap">
-            <input type="range" min="1" max="10" value="5" class="energy-slider" id="energy-book" oninput="updateEnergy('book',this.value)">
-            <div class="energy-val" id="energy-num-book">5</div>
           </div>
         </div>
         <div class="detail-group">
@@ -303,14 +295,10 @@ select.detail-input option { background: var(--bg3); }
           <div class="detail-group-label">Key takeaway</div>
           <textarea class="detail-input" id="ref-book" placeholder="What stuck with you today?"></textarea>
         </div>
-        <div class="detail-group">
-          <div class="detail-group-label">⚡ One-minute decision</div>
-          <input class="detail-input" id="decision-book" placeholder="A quick call you made without overthinking..." />
-        </div>
       </div>
     </div>
 
-    <!-- SKILL -->
+    <!-- SKILL — category (no Reading), energy, drills with instructions, decision -->
     <div class="habit-card" id="card-skill">
       <div class="habit-header" onclick="toggleDetail('skill')">
         <div class="habit-icon-wrap skill">🗣</div>
@@ -322,16 +310,18 @@ select.detail-input option { background: var(--bg3); }
         <span class="tog-label">Log details</span>
       </div>
       <div class="habit-details" id="det-skill">
+
+        <!-- Category — no Reading option -->
         <div class="detail-group">
           <div class="detail-group-label">Category</div>
           <select class="detail-input" id="cat-skill">
             <option value="">Select category</option>
-            <option value="Reading">Reading</option>
             <option value="Vocal Drills">Vocal Drills</option>
             <option value="Non-Vocal Cues">Non-Vocal Cues</option>
             <option value="Decision Practice">Decision Practice</option>
           </select>
         </div>
+
         <div class="detail-group">
           <div class="detail-group-label">Time spent</div>
           <div class="min-pills" id="pills-skill">
@@ -341,6 +331,7 @@ select.detail-input option { background: var(--bg3); }
             <button class="min-pill" data-val="60" onclick="selMin('skill',60)">60+ min</button>
           </div>
         </div>
+
         <div class="detail-group">
           <div class="detail-group-label">Energy level — <span id="energy-val-skill">5</span>/10</div>
           <div class="energy-wrap">
@@ -348,30 +339,122 @@ select.detail-input option { background: var(--bg3); }
             <div class="energy-val" id="energy-num-skill">5</div>
           </div>
         </div>
+
+        <!-- Drills with expandable how-to instructions -->
         <div class="detail-group">
-          <div class="detail-group-label">Daily drills</div>
+          <div class="detail-group-label">Daily drills — tap ▾ to see how</div>
           <div class="drill-grid">
-            <div class="drill-item" onclick="toggleDrill('skill','nursery_rhyme')">
-              <div class="drill-check" id="dchk-skill-nursery_rhyme"></div>
-              <div><div class="drill-tag vocal">Vocal</div><div class="drill-text">Nursery Rhyme Stretch</div></div>
+
+            <div class="drill-item" id="drill-nursery_rhyme">
+              <div class="drill-header" onclick="toggleDrillItem('skill','nursery_rhyme', event)">
+                <div class="drill-check" id="dchk-skill-nursery_rhyme"></div>
+                <div class="drill-text-wrap">
+                  <div class="drill-tag vocal">Vocal</div>
+                  <div class="drill-text">Nursery Rhyme Stretch</div>
+                </div>
+                <div class="drill-expand-icon">▾</div>
+              </div>
+              <div class="drill-info">
+                <div class="drill-how">
+                  <strong>What it is</strong>
+                  Recite a nursery rhyme while deliberately stretching each vowel sound — slow it down until each word feels overlong.
+                  <strong style="margin-top:8px">How to do it</strong>
+                  <ol>
+                    <li>Pick any nursery rhyme (e.g. "Humpty Dumpty")</li>
+                    <li>Say it at normal speed once through</li>
+                    <li>Repeat, stretching every vowel 2–3x longer than normal</li>
+                    <li>Focus on your mouth shape and breath control</li>
+                  </ol>
+                  <strong style="margin-top:8px">Why it works</strong>
+                  Loosens jaw tension, improves articulation, and warms up your vocal range before important conversations.
+                </div>
+              </div>
             </div>
-            <div class="drill-item" onclick="toggleDrill('skill','stress_verb')">
-              <div class="drill-check" id="dchk-skill-stress_verb"></div>
-              <div><div class="drill-tag vocal">Vocal</div><div class="drill-text">Stressing the Verb</div></div>
+
+            <div class="drill-item" id="drill-stress_verb">
+              <div class="drill-header" onclick="toggleDrillItem('skill','stress_verb', event)">
+                <div class="drill-check" id="dchk-skill-stress_verb"></div>
+                <div class="drill-text-wrap">
+                  <div class="drill-tag vocal">Vocal</div>
+                  <div class="drill-text">Stressing the Verb</div>
+                </div>
+                <div class="drill-expand-icon">▾</div>
+              </div>
+              <div class="drill-info">
+                <div class="drill-how">
+                  <strong>What it is</strong>
+                  Say the same sentence multiple times, stressing a different word (especially verbs) each time to change meaning and impact.
+                  <strong style="margin-top:8px">How to do it</strong>
+                  <ol>
+                    <li>Pick a sentence: "I never said she took the money"</li>
+                    <li>Say it 6 times, emphasizing a different word each time</li>
+                    <li>Notice how meaning shifts with each stress</li>
+                    <li>Apply to a sentence from work or a presentation</li>
+                  </ol>
+                  <strong style="margin-top:8px">Why it works</strong>
+                  Trains you to speak with intentionality — commanding presence comes from knowing which word to land on.
+                </div>
+              </div>
             </div>
-            <div class="drill-item" onclick="toggleDrill('skill','box_gesture')">
-              <div class="drill-check" id="dchk-skill-box_gesture"></div>
-              <div><div class="drill-tag nonvocal">Non-Vocal</div><div class="drill-text">The "Box" Gesture</div></div>
+
+            <div class="drill-item" id="drill-box_gesture">
+              <div class="drill-header" onclick="toggleDrillItem('skill','box_gesture', event)">
+                <div class="drill-check" id="dchk-skill-box_gesture"></div>
+                <div class="drill-text-wrap">
+                  <div class="drill-tag nonvocal">Non-Vocal</div>
+                  <div class="drill-text">The "Box" Gesture</div>
+                </div>
+                <div class="drill-expand-icon">▾</div>
+              </div>
+              <div class="drill-info">
+                <div class="drill-how">
+                  <strong>What it is</strong>
+                  A structured hand gesture that frames your ideas visually, used by top communicators to signal confidence and control.
+                  <strong style="margin-top:8px">How to do it</strong>
+                  <ol>
+                    <li>Hold both hands in front of you, chest height</li>
+                    <li>Form a rectangular "box" shape with your hands</li>
+                    <li>When making a point, move hands to outline the box</li>
+                    <li>Practice while talking — it should feel natural, not forced</li>
+                  </ol>
+                  <strong style="margin-top:8px">Why it works</strong>
+                  Controlled gestures signal authority. The box keeps your hands in the "power zone" and prevents nervous fidgeting.
+                </div>
+              </div>
             </div>
-            <div class="drill-item" onclick="toggleDrill('skill','eye_lock')">
-              <div class="drill-check" id="dchk-skill-eye_lock"></div>
-              <div><div class="drill-tag nonvocal">Non-Vocal</div><div class="drill-text">3-Second Eye Lock</div></div>
+
+            <div class="drill-item" id="drill-eye_lock">
+              <div class="drill-header" onclick="toggleDrillItem('skill','eye_lock', event)">
+                <div class="drill-check" id="dchk-skill-eye_lock"></div>
+                <div class="drill-text-wrap">
+                  <div class="drill-tag nonvocal">Non-Vocal</div>
+                  <div class="drill-text">3-Second Eye Lock</div>
+                </div>
+                <div class="drill-expand-icon">▾</div>
+              </div>
+              <div class="drill-info">
+                <div class="drill-how">
+                  <strong>What it is</strong>
+                  Holding eye contact for exactly 3 seconds before naturally breaking — enough to feel confident without being intense.
+                  <strong style="margin-top:8px">How to do it</strong>
+                  <ol>
+                    <li>In any conversation, pick one person to focus on</li>
+                    <li>Make eye contact and silently count: 1, 2, 3</li>
+                    <li>Break naturally (look to the side, not down)</li>
+                    <li>Repeat — aim for 3 locks per conversation today</li>
+                  </ol>
+                  <strong style="margin-top:8px">Why it works</strong>
+                  Eye contact is the fastest signal of confidence. Breaking down signals submission; breaking to the side signals certainty.
+                </div>
+              </div>
             </div>
+
           </div>
         </div>
+
         <div class="detail-group">
-          <div class="detail-group-label">Activity</div>
-          <input class="detail-input" id="note-skill" placeholder="e.g. Public speaking prep, Toastmasters" />
+          <div class="detail-group-label">Activity / notes</div>
+          <input class="detail-input" id="note-skill" placeholder="e.g. Toastmasters, mock presentation, networking event" />
         </div>
         <div class="detail-group">
           <div class="detail-group-label">Reflection</div>
@@ -384,7 +467,7 @@ select.detail-input option { background: var(--bg3); }
       </div>
     </div>
 
-    <!-- PROJECT -->
+    <!-- PROJECT — no category, no drills -->
     <div class="habit-card" id="card-proj">
       <div class="habit-header" onclick="toggleDetail('proj')">
         <div class="habit-icon-wrap proj">💻</div>
@@ -397,16 +480,6 @@ select.detail-input option { background: var(--bg3); }
       </div>
       <div class="habit-details" id="det-proj">
         <div class="detail-group">
-          <div class="detail-group-label">Category</div>
-          <select class="detail-input" id="cat-proj">
-            <option value="">Select category</option>
-            <option value="Reading">Reading</option>
-            <option value="Vocal Drills">Vocal Drills</option>
-            <option value="Non-Vocal Cues">Non-Vocal Cues</option>
-            <option value="Decision Practice">Decision Practice</option>
-          </select>
-        </div>
-        <div class="detail-group">
           <div class="detail-group-label">Time spent</div>
           <div class="min-pills" id="pills-proj">
             <button class="min-pill" data-val="30" onclick="selMin('proj',30)">30 min</button>
@@ -416,23 +489,12 @@ select.detail-input option { background: var(--bg3); }
           </div>
         </div>
         <div class="detail-group">
-          <div class="detail-group-label">Energy level — <span id="energy-val-proj">5</span>/10</div>
-          <div class="energy-wrap">
-            <input type="range" min="1" max="10" value="5" class="energy-slider" id="energy-proj" oninput="updateEnergy('proj',this.value)">
-            <div class="energy-val" id="energy-num-proj">5</div>
-          </div>
-        </div>
-        <div class="detail-group">
           <div class="detail-group-label">Task worked on</div>
           <input class="detail-input" id="note-proj" placeholder="e.g. FastAPI auth endpoint" />
         </div>
         <div class="detail-group">
           <div class="detail-group-label">Progress / blockers</div>
           <textarea class="detail-input" id="ref-proj" placeholder="What did you ship or unblock?"></textarea>
-        </div>
-        <div class="detail-group">
-          <div class="detail-group-label">⚡ One-minute decision</div>
-          <input class="detail-input" id="decision-proj" placeholder="A quick call you made without overthinking..." />
         </div>
       </div>
     </div>
@@ -505,197 +567,204 @@ select.detail-input option { background: var(--bg3); }
 const BACKEND_URL = 'https://staysharp-backend-production.up.railway.app';
 const HABITS = ['book','skill','proj'];
 const DAY_NAMES = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-const state = { mins: {book:0,skill:0,proj:0}, deadline:'10pm', drills:{skill:{}} };
+const DRILL_KEYS = ['nursery_rhyme','stress_verb','box_gesture','eye_lock'];
+const state = { mins:{book:0,skill:0,proj:0}, deadline:'10pm', drills:{skill:{}} };
 
 // ── TIMER ──────────────────────────────────────────────
-const TIMER_DURATION = 5 * 60;
-let timerSeconds = TIMER_DURATION, timerInterval = null, timerRunning = false;
+const TIMER_DURATION = 5*60;
+let timerSeconds=TIMER_DURATION, timerInterval=null, timerRunning=false;
 
 function toggleTimer() {
   if (timerRunning) {
-    clearInterval(timerInterval); timerRunning = false; timerSeconds = TIMER_DURATION;
+    clearInterval(timerInterval); timerRunning=false; timerSeconds=TIMER_DURATION;
     renderTimer();
-    document.getElementById('timerBtn').textContent = 'START';
+    document.getElementById('timerBtn').textContent='START';
     document.getElementById('timerBtn').classList.remove('running');
   } else {
-    timerRunning = true;
-    document.getElementById('timerBtn').textContent = 'STOP';
+    timerRunning=true;
+    document.getElementById('timerBtn').textContent='STOP';
     document.getElementById('timerBtn').classList.add('running');
-    timerInterval = setInterval(() => {
+    timerInterval=setInterval(()=>{
       timerSeconds--;
       renderTimer();
-      if (timerSeconds <= 0) {
-        clearInterval(timerInterval); timerRunning = false;
-        document.getElementById('timerBtn').textContent = 'AGAIN';
+      if(timerSeconds<=0){
+        clearInterval(timerInterval); timerRunning=false;
+        document.getElementById('timerBtn').textContent='AGAIN';
         document.getElementById('timerBtn').classList.remove('running');
         showToast('⚡ 5 minutes done — keep going!');
-        const s = getSettings();
-        if (s.ntfyTopic) {
-          fetch(`https://ntfy.sh/${s.ntfyTopic}`, { method:'POST', headers:{'Title':'⚡ 5 minutes done!','Priority':'3','Tags':'tada'}, body:'You started. Now keep going.' }).catch(()=>{});
-        }
+        const s=getSettings();
+        if(s.ntfyTopic){fetch(`https://ntfy.sh/${s.ntfyTopic}`,{method:'POST',headers:{Title:'⚡ 5 minutes done!',Priority:'3',Tags:'tada'},body:'You started. Now keep going.'}).catch(()=>{});}
       }
-    }, 1000);
+    },1000);
   }
 }
 
 function renderTimer() {
-  const m = Math.floor(timerSeconds/60), s = timerSeconds%60;
-  const display = document.getElementById('timerDisplay');
-  const bar = document.getElementById('timerBar');
-  display.textContent = `${m}:${s.toString().padStart(2,'0')}`;
-  bar.style.width = (timerSeconds/TIMER_DURATION*100)+'%';
-  const urgent = timerSeconds <= 30;
-  display.classList.toggle('urgent', urgent);
-  bar.classList.toggle('urgent', urgent);
+  const m=Math.floor(timerSeconds/60), s=timerSeconds%60;
+  document.getElementById('timerDisplay').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('timerBar').style.width=(timerSeconds/TIMER_DURATION*100)+'%';
+  const urgent=timerSeconds<=30;
+  document.getElementById('timerDisplay').classList.toggle('urgent',urgent);
+  document.getElementById('timerBar').classList.toggle('urgent',urgent);
 }
 
 // ── 90-DAY ─────────────────────────────────────────────
 function updateNinetyDay(startDateStr) {
-  if (!startDateStr) { document.getElementById('ninetyCount').textContent = 'Not started'; document.getElementById('ninetyBar').style.width = '0%'; return; }
-  const days = Math.max(0, Math.min(Math.floor((new Date()-new Date(startDateStr))/(1000*60*60*24)), 90));
-  document.getElementById('ninetyCount').textContent = `Day ${days} of 90`;
-  document.getElementById('ninetyBar').style.width = (days/90*100)+'%';
+  if(!startDateStr){document.getElementById('ninetyCount').textContent='Not started';document.getElementById('ninetyBar').style.width='0%';return;}
+  const days=Math.max(0,Math.min(Math.floor((new Date()-new Date(startDateStr))/(1000*60*60*24)),90));
+  document.getElementById('ninetyCount').textContent=`Day ${days} of 90`;
+  document.getElementById('ninetyBar').style.width=(days/90*100)+'%';
 }
 
 function startNinetyDay() {
-  const today = new Date().toISOString().split('T')[0];
-  const s = getSettings(); s.ninety_day_start = today; setSettings(s);
+  const today=new Date().toISOString().split('T')[0];
+  const s=getSettings(); s.ninety_day_start=today; setSettings(s);
   updateNinetyDay(today); showToast('🗓 90-day clock started today!');
 }
 
 // ── DRILLS ─────────────────────────────────────────────
-function toggleDrill(habit, drill) {
-  if (!state.drills[habit]) state.drills[habit] = {};
-  state.drills[habit][drill] = !state.drills[habit][drill];
-  renderDrill(habit, drill);
+// Click on header checks/unchecks. Click on ▾ expands instructions.
+function toggleDrillItem(habit, drill, event) {
+  // If clicking the expand icon, toggle info panel only
+  if(event.target.classList.contains('drill-expand-icon') || event.target.closest('.drill-expand-icon')) {
+    const item=document.getElementById(`drill-${drill}`);
+    if(item) item.classList.toggle('info-open');
+    return;
+  }
+  // Otherwise toggle the check
+  if(!state.drills[habit]) state.drills[habit]={};
+  state.drills[habit][drill]=!state.drills[habit][drill];
+  renderDrill(habit,drill);
 }
 
-function renderDrill(habit, drill) {
-  const done = !!(state.drills[habit] && state.drills[habit][drill]);
-  const chk = document.getElementById(`dchk-${habit}-${drill}`);
-  if (!chk) return;
-  const item = chk.closest('.drill-item');
-  chk.classList.toggle('done', done);
-  if (item) item.classList.toggle('done', done);
+function renderDrill(habit,drill) {
+  const done=!!(state.drills[habit]&&state.drills[habit][drill]);
+  const chk=document.getElementById(`dchk-${habit}-${drill}`);
+  const item=document.getElementById(`drill-${drill}`);
+  if(chk) chk.classList.toggle('done',done);
+  if(item) item.classList.toggle('done',done);
 }
 
 function renderAllDrills() {
-  ['nursery_rhyme','stress_verb','box_gesture','eye_lock'].forEach(d => renderDrill('skill', d));
+  DRILL_KEYS.forEach(d=>renderDrill('skill',d));
 }
 
 // ── ENERGY ─────────────────────────────────────────────
-function updateEnergy(h, val) {
-  document.getElementById(`energy-val-${h}`).textContent = val;
-  document.getElementById(`energy-num-${h}`).textContent = val;
+function updateEnergy(h,val) {
+  document.getElementById(`energy-val-${h}`).textContent=val;
+  document.getElementById(`energy-num-${h}`).textContent=val;
 }
 
 // ── STORAGE ────────────────────────────────────────────
-function todayKey() { const d = new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
-function getStore() { try { return JSON.parse(localStorage.getItem('staysharp_v2')||'{}'); } catch(e) { return {}; } }
-function setStore(d) { try { localStorage.setItem('staysharp_v2', JSON.stringify(d)); } catch(e) {} }
-function getSettings() { try { return JSON.parse(localStorage.getItem('staysharp_settings')||'{}'); } catch(e) { return {}; } }
-function setSettings(d) { try { localStorage.setItem('staysharp_settings', JSON.stringify(d)); } catch(e) {} }
+function todayKey(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
+function getStore(){try{return JSON.parse(localStorage.getItem('staysharp_v2')||'{}');}catch(e){return {};}}
+function setStore(d){try{localStorage.setItem('staysharp_v2',JSON.stringify(d));}catch(e){}}
+function getSettings(){try{return JSON.parse(localStorage.getItem('staysharp_settings')||'{}');}catch(e){return {};}}
+function setSettings(d){try{localStorage.setItem('staysharp_settings',JSON.stringify(d));}catch(e){}}
 
 // ── CLOUD SYNC ─────────────────────────────────────────
 async function syncFromCloud() {
-  const badge = document.getElementById('syncBadge');
+  const badge=document.getElementById('syncBadge');
   try {
-    const res = await fetch(`${BACKEND_URL}/get-all`);
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error);
-    const store = getStore();
-    Object.assign(store, data.data);
+    const res=await fetch(`${BACKEND_URL}/get-all`);
+    const data=await res.json();
+    if(!data.ok) throw new Error(data.error);
+    const store=getStore();
+    Object.assign(store,data.data);
     setStore(store);
-    const sRes = await fetch(`${BACKEND_URL}/get-settings`);
-    const sData = await sRes.json();
-    if (sData.ok && sData.settings && Object.keys(sData.settings).length > 0) {
-      const merged = Object.assign({}, sData.settings, getSettings());
-      merged.acc_email = sData.settings.acc_email || merged.acc_email;
-      merged.accEmail  = sData.settings.acc_email || merged.accEmail;
-      merged.accName   = sData.settings.name       || merged.accName;
-      merged.deadline  = sData.settings.deadline   || merged.deadline;
-      if (sData.settings.ninety_day_start) merged.ninety_day_start = sData.settings.ninety_day_start;
+    const sRes=await fetch(`${BACKEND_URL}/get-settings`);
+    const sData=await sRes.json();
+    if(sData.ok&&sData.settings&&Object.keys(sData.settings).length>0){
+      const merged=Object.assign({},sData.settings,getSettings());
+      merged.acc_email=sData.settings.acc_email||merged.acc_email;
+      merged.accEmail=sData.settings.acc_email||merged.accEmail;
+      merged.accName=sData.settings.name||merged.accName;
+      merged.deadline=sData.settings.deadline||merged.deadline;
+      if(sData.settings.ninety_day_start) merged.ninety_day_start=sData.settings.ninety_day_start;
       setSettings(merged);
     }
-    badge.textContent = '✓ Synced from cloud'; badge.className = 'sync-badge ok';
-    setTimeout(() => badge.style.display = 'none', 2000);
+    badge.textContent='✓ Synced from cloud'; badge.className='sync-badge ok';
+    setTimeout(()=>badge.style.display='none',2000);
     return store;
   } catch(e) {
-    badge.textContent = '⚠ Offline — showing local data'; badge.className = 'sync-badge err';
-    setTimeout(() => badge.style.display = 'none', 3000);
+    badge.textContent='⚠ Offline — showing local data'; badge.className='sync-badge err';
+    setTimeout(()=>badge.style.display='none',3000);
     return getStore();
   }
 }
 
 // ── INIT ───────────────────────────────────────────────
 async function init() {
-  const now = new Date();
-  document.getElementById('dateBadge').textContent =
-    now.toLocaleDateString('en-US', {weekday:'short',month:'short',day:'numeric',year:'numeric'}).toUpperCase();
+  const now=new Date();
+  document.getElementById('dateBadge').textContent=
+    now.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}).toUpperCase();
 
-  const store = await syncFromCloud();
-  const settings = getSettings();
-  const todayData = store[todayKey()] || {};
+  const store=await syncFromCloud();
+  const settings=getSettings();
+  const todayData=store[todayKey()]||{};
 
-  if (settings.accEmail)       document.getElementById('accEmail').value   = settings.accEmail;
-  if (settings.accName)        document.getElementById('accName').value    = settings.accName;
-  if (settings.deadline)       { state.deadline = settings.deadline; selDeadline(settings.deadline, true); }
-  if (settings.ntfyTopic)      document.getElementById('ntfyTopic').value  = settings.ntfyTopic;
-  if (settings.ntfyServer)     document.getElementById('ntfyServer').value = settings.ntfyServer;
-  if (settings.nudgeStart)     document.getElementById('nudgeStart').value = settings.nudgeStart;
-  updateNinetyDay(settings.ninety_day_start || '');
+  if(settings.accEmail)   document.getElementById('accEmail').value=settings.accEmail;
+  if(settings.accName)    document.getElementById('accName').value=settings.accName;
+  if(settings.deadline)   {state.deadline=settings.deadline;selDeadline(settings.deadline,true);}
+  if(settings.ntfyTopic)  document.getElementById('ntfyTopic').value=settings.ntfyTopic;
+  if(settings.ntfyServer) document.getElementById('ntfyServer').value=settings.ntfyServer;
+  if(settings.nudgeStart) document.getElementById('nudgeStart').value=settings.nudgeStart;
+  updateNinetyDay(settings.ninety_day_start||'');
 
-  HABITS.forEach(h => {
-    const d = todayData[h];
-    if (!d) return;
-    if (d.checked) { document.getElementById('chk-'+h).classList.add('done'); document.getElementById('card-'+h).classList.add('checked'); }
-    if (d.mins) selMin(h, d.mins, true);
-    if (d.note) document.getElementById('note-'+h).value = d.note;
-    if (d.ref)  document.getElementById('ref-'+h).value  = d.ref;
-    const catEl = document.getElementById('cat-'+h); if (catEl && d.category) catEl.value = d.category;
-    const engEl = document.getElementById('energy-'+h); if (engEl && d.energy !== undefined) { engEl.value = d.energy; updateEnergy(h, d.energy); }
-    const decEl = document.getElementById('decision-'+h); if (decEl && d.one_min_decision) decEl.value = d.one_min_decision;
-    if (d.vocal_drills || d.nonvocal_drills) {
-      state.drills[h] = Object.assign({}, d.vocal_drills||{}, d.nonvocal_drills||{});
-      renderAllDrills();
+  HABITS.forEach(h=>{
+    const d=todayData[h]; if(!d) return;
+    if(d.checked){document.getElementById('chk-'+h).classList.add('done');document.getElementById('card-'+h).classList.add('checked');}
+    if(d.mins) selMin(h,d.mins,true);
+    if(d.note) document.getElementById('note-'+h).value=d.note;
+    if(d.ref)  document.getElementById('ref-'+h).value=d.ref;
+    // Skill-only fields
+    if(h==='skill'){
+      const catEl=document.getElementById('cat-skill'); if(catEl&&d.category) catEl.value=d.category;
+      const engEl=document.getElementById('energy-skill'); if(engEl&&d.energy!==undefined){engEl.value=d.energy;updateEnergy('skill',d.energy);}
+      const decEl=document.getElementById('decision-skill'); if(decEl&&d.one_min_decision) decEl.value=d.one_min_decision;
+      if(d.vocal_drills||d.nonvocal_drills){
+        state.drills.skill=Object.assign({},d.vocal_drills||{},d.nonvocal_drills||{});
+        renderAllDrills();
+      }
     }
-    updateSubtitle(h, d);
+    updateSubtitle(h,d);
   });
 
   buildWeekGrid(store); calcStreaks(store); checkMissedYesterday(store); scheduleDeadlineCheck();
 }
 
-function updateSubtitle(h, d) {
-  const el = document.getElementById('sub-'+h); if (!d) return;
-  const parts = [];
-  if (d.mins) parts.push(d.mins+' min');
-  if (d.energy) parts.push(`E:${d.energy}`);
-  if (d.note) parts.push(d.note.slice(0,25));
-  if (parts.length) el.textContent = parts.join(' · ');
+function updateSubtitle(h,d) {
+  const el=document.getElementById('sub-'+h); if(!d) return;
+  const parts=[];
+  if(d.mins) parts.push(d.mins+' min');
+  if(h==='skill'&&d.energy) parts.push(`E:${d.energy}`);
+  if(h==='skill'&&d.category) parts.push(d.category);
+  if(d.note) parts.push(d.note.slice(0,25));
+  if(parts.length) el.textContent=parts.join(' · ');
 }
 
 function buildWeekGrid(store) {
-  const grid = document.getElementById('weekRow'); grid.innerHTML = '';
-  const today = new Date();
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(today); d.setDate(today.getDate()-i);
-    const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-    const data = store[key]||{};
-    const cell = document.createElement('div');
-    cell.className = 'week-cell'+(i===0?' today':'');
-    if (HABITS.filter(h=>data[h]&&data[h].checked).length===3) cell.classList.add('full');
-    cell.innerHTML = `<div class="week-cell-fill"></div><div class="week-cell-day">${DAY_NAMES[d.getDay()]}</div><div class="week-cell-dots"><div class="week-dot ${data.book&&data.book.checked?'book':''}"></div><div class="week-dot ${data.skill&&data.skill.checked?'skill':''}"></div><div class="week-dot ${data.proj&&data.proj.checked?'proj':''}"></div></div>`;
+  const grid=document.getElementById('weekRow'); grid.innerHTML='';
+  const today=new Date();
+  for(let i=6;i>=0;i--){
+    const d=new Date(today); d.setDate(today.getDate()-i);
+    const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+    const data=store[key]||{};
+    const cell=document.createElement('div');
+    cell.className='week-cell'+(i===0?' today':'');
+    if(HABITS.filter(h=>data[h]&&data[h].checked).length===3) cell.classList.add('full');
+    cell.innerHTML=`<div class="week-cell-fill"></div><div class="week-cell-day">${DAY_NAMES[d.getDay()]}</div><div class="week-cell-dots"><div class="week-dot ${data.book&&data.book.checked?'book':''}"></div><div class="week-dot ${data.skill&&data.skill.checked?'skill':''}"></div><div class="week-dot ${data.proj&&data.proj.checked?'proj':''}"></div></div>`;
     grid.appendChild(cell);
   }
 }
 
 function calcStreaks(store) {
-  const today = new Date();
-  function calcStreak(fn) { let c=0; for(let i=0;i<365;i++){const d=new Date(today);d.setDate(today.getDate()-i);const k=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;if(fn(store[k]||{})){c++;}else if(i>0)break;} return c; }
-  document.getElementById('sAll').textContent   = calcStreak(d=>HABITS.every(h=>d[h]&&d[h].checked));
-  document.getElementById('sBook').textContent  = calcStreak(d=>d.book&&d.book.checked);
-  document.getElementById('sSkill').textContent = calcStreak(d=>d.skill&&d.skill.checked);
-  document.getElementById('sProj').textContent  = calcStreak(d=>d.proj&&d.proj.checked);
+  const today=new Date();
+  function calcStreak(fn){let c=0;for(let i=0;i<365;i++){const d=new Date(today);d.setDate(today.getDate()-i);const k=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;if(fn(store[k]||{})){c++;}else if(i>0)break;}return c;}
+  document.getElementById('sAll').textContent  =calcStreak(d=>HABITS.every(h=>d[h]&&d[h].checked));
+  document.getElementById('sBook').textContent =calcStreak(d=>d.book&&d.book.checked);
+  document.getElementById('sSkill').textContent=calcStreak(d=>d.skill&&d.skill.checked);
+  document.getElementById('sProj').textContent =calcStreak(d=>d.proj&&d.proj.checked);
 }
 
 function checkMissedYesterday(store) {
@@ -712,7 +781,7 @@ function showMissedBanner(msg) {
   b.innerHTML=`<div class="missed-icon">⚠️</div><div class="missed-text">${msg}</div>`;
 }
 
-function toggleCheck(h) { document.getElementById('chk-'+h).classList.toggle('done'); document.getElementById('card-'+h).classList.toggle('checked'); }
+function toggleCheck(h){document.getElementById('chk-'+h).classList.toggle('done');document.getElementById('card-'+h).classList.toggle('checked');}
 
 function toggleDetail(h) {
   const det=document.getElementById('det-'+h); const tog=document.getElementById('tog-'+h);
@@ -720,54 +789,64 @@ function toggleDetail(h) {
   const label=tog.querySelector('.tog-label'); if(label) label.textContent=isOpen?'Collapse':'Log details';
 }
 
-function selMin(h,m,silent) {
+function selMin(h,m,silent){
   state.mins[h]=m;
   document.querySelectorAll(`#pills-${h} .min-pill`).forEach(btn=>btn.classList.toggle('active',parseInt(btn.getAttribute('data-val'))===m));
 }
 
-function selDeadline(val,silent) {
+function selDeadline(val,silent){
   state.deadline=val;
   document.querySelectorAll('.deadline-option').forEach(btn=>btn.classList.toggle('active',btn.textContent.trim().toLowerCase().replace(/\s+/g,'')===val));
 }
 
 function saveDay() {
   const store=getStore(); const today=todayKey(); if(!store[today]) store[today]={};
+  const drills=state.drills.skill||{};
+
   HABITS.forEach(h=>{
-    const drills=state.drills[h]||{};
     store[today][h]={
       checked: document.getElementById('chk-'+h).classList.contains('done'),
       mins: state.mins[h],
       note: document.getElementById('note-'+h).value,
       ref:  document.getElementById('ref-'+h).value,
-      category: (document.getElementById('cat-'+h)||{}).value||'',
-      energy: parseInt((document.getElementById('energy-'+h)||{value:'5'}).value)||5,
-      one_min_decision: (document.getElementById('decision-'+h)||{}).value||'',
-      vocal_drills:    {nursery_rhyme:!!drills.nursery_rhyme, stress_verb:!!drills.stress_verb},
-      nonvocal_drills: {box_gesture:!!drills.box_gesture, eye_lock:!!drills.eye_lock}
+      // Skill-only extras
+      ...(h==='skill' && {
+        category: document.getElementById('cat-skill').value,
+        energy: parseInt(document.getElementById('energy-skill').value)||5,
+        one_min_decision: document.getElementById('decision-skill').value,
+        vocal_drills:    {nursery_rhyme:!!drills.nursery_rhyme, stress_verb:!!drills.stress_verb},
+        nonvocal_drills: {box_gesture:!!drills.box_gesture, eye_lock:!!drills.eye_lock}
+      })
     };
     updateSubtitle(h,store[today][h]);
   });
+
   setStore(store);
   const settings={
-    accEmail: document.getElementById('accEmail').value,
-    accName:  document.getElementById('accName').value,
-    deadline: state.deadline,
+    accEmail:  document.getElementById('accEmail').value,
+    accName:   document.getElementById('accName').value,
+    deadline:  state.deadline,
     ntfyTopic: document.getElementById('ntfyTopic').value,
-    ntfyServer: document.getElementById('ntfyServer').value,
-    nudgeStart: document.getElementById('nudgeStart').value,
+    ntfyServer:document.getElementById('ntfyServer').value,
+    nudgeStart:document.getElementById('nudgeStart').value,
     ninety_day_start: getSettings().ninety_day_start||''
   };
   setSettings(settings);
   buildWeekGrid(store); calcStreaks(store);
+
   const allDone=HABITS.every(h=>store[today][h].checked);
   showToast(allDone?'🔥 All three done. Streak intact.':`Saved. ${HABITS.filter(h=>store[today][h].checked).length}/3 habits logged.`);
-  fetch(`${BACKEND_URL}/save`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    date:today, log:store[today],
-    settings:{name:settings.accName,ntfy_topic:settings.ntfyTopic,ntfy_server:settings.ntfyServer||'https://ntfy.sh',deadline:settings.deadline,acc_email:settings.accEmail,ninety_day_start:settings.ninety_day_start}
-  })}).catch(()=>console.warn('Backend sync failed'));
+
+  fetch(`${BACKEND_URL}/save`,{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      date:today, log:store[today],
+      settings:{name:settings.accName,ntfy_topic:settings.ntfyTopic,ntfy_server:settings.ntfyServer||'https://ntfy.sh',deadline:settings.deadline,acc_email:settings.accEmail,ninety_day_start:settings.ninety_day_start}
+    })
+  }).catch(()=>console.warn('Backend sync failed'));
 }
 
-function showToast(msg,warn) {
+function showToast(msg,warn){
   const t=document.getElementById('toast'); t.textContent=msg;
   t.className='toast show'+(warn?' warn':''); setTimeout(()=>t.classList.remove('show'),3000);
 }
@@ -788,7 +867,7 @@ function scheduleDeadlineCheck() {
   setInterval(check,5*60*1000); check();
 }
 
-async function sendNtfy(missed,settings,isTest) {
+async function sendNtfy(missed,settings,isTest){
   const topic=(settings&&settings.ntfyTopic)||document.getElementById('ntfyTopic').value.trim();
   let server=(settings&&settings.ntfyServer)||document.getElementById('ntfyServer').value.trim()||'https://ntfy.sh';
   server=server.replace(/\/+$/,''); if(!server.startsWith('http')) server='https://ntfy.sh';
@@ -797,10 +876,10 @@ async function sendNtfy(missed,settings,isTest) {
   const name=(settings&&settings.accName)||document.getElementById('accName').value||'You';
   const title=isTest?'Stay Sharp: Connection Success':'Stay Sharp: Deadline Alert';
   const msg=isTest?'✅ Push notifications working! 📚 🗣 💻':`⚠️ ${name}, missed: ${missed.map(h=>names[h]).join(', ')}.`;
-  try {
+  try{
     await fetch(`${server}/${encodeURIComponent(topic)}`,{method:'POST',headers:{Title:title,Priority:isTest?'3':'4',Tags:isTest?'white_check_mark':'warning'},body:msg});
     showToast(isTest?'📲 Test sent!':'📲 Push notification fired');
-  } catch(e){showToast('Push failed',true);}
+  }catch(e){showToast('Push failed',true);}
 }
 
 async function sendTestNotif(){await sendNtfy([],null,true);}
