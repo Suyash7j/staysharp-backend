@@ -4,3 +4,4 @@ pydantic
 httpx
 resend
 supabase
+twilio
