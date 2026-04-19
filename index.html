@@ -3,701 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stay Sharp — Daily Tracker</title>
+<title>Stay Sharp</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f8f7f4;
-  --fg: #111111;
-  --muted: #888880;
-  --line: #e2e1dc;
-  --card: #ffffff;
-  --book: #3a7bd5;
-  --skill: #8b5cf6;
-  --proj: #059669;
-  --fire: #ea580c;
-  --danger: #dc2626;
-  --timer: #d97706;
+  --bg: #f8f7f4; --fg: #111111; --muted: #888880; --line: #e2e1dc;
+  --book: #3a7bd5; --skill: #8b5cf6; --proj: #059669;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body { background: var(--bg); color: var(--fg); font-family: 'DM Sans', sans-serif; font-weight: 300; min-height: 100vh; }
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.6;overflow-x:hidden}
 
-/* ── TOPBAR ── */
-.topbar {
-  position: sticky; top: 0; z-index: 50;
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 16px 48px;
-  background: rgba(248,247,244,0.96);
-  border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(10px);
-}
-.topbar-logo { font-family: 'DM Mono', monospace; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg); text-decoration: none; }
-.topbar-right { display: flex; gap: 16px; align-items: center; }
-.topbar-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
-.topbar-link { font-size: 12px; color: var(--muted); text-decoration: none; border: 1px solid var(--line); padding: 6px 14px; border-radius: 2px; transition: all 0.2s; }
-.topbar-link:hover { color: var(--fg); border-color: var(--fg); }
-.sync-pill { font-family: 'DM Mono', monospace; font-size: 10px; padding: 4px 10px; border-radius: 2px; border: 1px solid var(--line); color: var(--muted); letter-spacing: 0.06em; }
-.sync-pill.ok { border-color: var(--proj); color: var(--proj); }
-.sync-pill.err { border-color: var(--danger); color: var(--danger); }
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:20px 48px;background:rgba(248,247,244,0);border-bottom:1px solid transparent;transition:all 0.4s}
+nav.scrolled{background:rgba(248,247,244,0.95);border-bottom-color:var(--line);backdrop-filter:blur(10px)}
+.nav-logo{font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg);text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+.nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--fg)}
+.nav-cta{background:var(--fg)!important;color:var(--bg)!important;padding:9px 20px;border-radius:2px}
 
-/* ── PAGE WRAP ── */
-.wrap { max-width: 800px; margin: 0 auto; padding: 0 48px 96px; }
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 48px 80px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:24px;animation:rise 0.9s 0.2s both}
+.hero-h{font-family:'Playfair Display',serif;font-size:clamp(60px,9vw,120px);line-height:1.0;letter-spacing:-0.02em;font-weight:400;max-width:940px;animation:rise 0.9s 0.35s both}
+.hero-h em{font-style:italic;color:var(--muted)}
+.hero-bot{margin-top:56px;display:flex;align-items:flex-end;justify-content:space-between;animation:rise 0.9s 0.5s both}
+.hero-sub{font-size:16px;color:var(--muted);max-width:420px;line-height:1.75}
+.btn-row{display:flex;gap:12px}
+.btn-dark{padding:14px 32px;background:var(--fg);color:var(--bg);font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:0.04em;border:none;border-radius:2px;cursor:pointer;text-decoration:none;display:inline-block;transition:opacity 0.2s,transform 0.2s}
+.btn-dark:hover{opacity:0.82;transform:translateY(-2px)}
+.btn-ghost{padding:14px 32px;background:transparent;color:var(--fg);font-size:13px;font-family:'DM Sans',sans-serif;letter-spacing:0.04em;border:1px solid var(--line);border-radius:2px;cursor:pointer;text-decoration:none;display:inline-block;transition:border-color 0.2s,transform 0.2s}
+.btn-ghost:hover{border-color:var(--fg);transform:translateY(-2px)}
 
-/* ── PAGE HEADER ── */
-.page-head { padding: 60px 0 48px; border-bottom: 1px solid var(--line); margin-bottom: 48px; }
-.page-eyebrow { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
-.page-title { font-family: 'Playfair Display', serif; font-size: clamp(36px, 5.5vw, 60px); font-weight: 400; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 0; }
-.page-title em { font-style: italic; color: var(--muted); }
+/* MARQUEE */
+.marquee-band{overflow:hidden;white-space:nowrap;background:var(--fg);padding:12px 0;border-bottom:1px solid var(--line)}
+.marquee-inner{display:inline-flex;animation:marquee 20s linear infinite}
+.marquee-item{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(248,247,244,0.5);padding:0 36px}
+.marquee-item b{color:#fff;font-weight:400;margin-right:8px}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* ── MISSED BANNER ── */
-.missed-banner { display: none; margin-bottom: 32px; padding: 14px 20px; background: #fff8f0; border-left: 3px solid var(--fire); font-size: 13px; color: #78350f; line-height: 1.6; }
-.missed-banner.show { display: block; }
-.missed-banner strong { color: var(--fire); font-weight: 500; }
+/* SECTIONS */
+.section{padding:96px 48px;border-bottom:1px solid var(--line)}
+.sec-ey{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:56px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.col-h{font-family:'Playfair Display',serif;font-size:clamp(28px,3.5vw,46px);font-weight:400;line-height:1.2;letter-spacing:-0.01em}
+.col-h em{font-style:italic;color:var(--muted)}
+.col-p{font-size:15px;color:var(--muted);line-height:1.8}
+.col-p p+p{margin-top:16px}
 
-/* ── SYNC BADGE ── */
-.sync-badge { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 32px; letter-spacing: 0.06em; }
-.sync-badge.ok { color: var(--proj); }
-.sync-badge.err { color: var(--danger); }
+/* TILES */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:56px}
+.tile{background:var(--bg);padding:48px 40px;position:relative;overflow:hidden;opacity:0;transform:translateY(28px);transition:opacity 0.6s,transform 0.6s,background 0.3s}
+.tile.in{opacity:1;transform:translateY(0)}
+.tile:hover{background:#f3f2ef}
+.tile:nth-child(2){transition-delay:0.1s}
+.tile:nth-child(3){transition-delay:0.2s}
+.tile-accent{position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s}
+.tile:hover .tile-accent{opacity:1}
+.tile.book .tile-accent{background:var(--book)}
+.tile.skill .tile-accent{background:var(--skill)}
+.tile.proj .tile-accent{background:var(--proj)}
+.tile-n{font-family:'Playfair Display',serif;font-size:80px;color:var(--line);line-height:1;margin-bottom:20px;font-weight:400}
+.tile-e{font-size:26px;margin-bottom:14px}
+.tile-h{font-size:17px;font-weight:500;margin-bottom:10px;letter-spacing:-0.01em}
+.tile-p{font-size:14px;color:var(--muted);line-height:1.7}
 
-/* ── 5-MIN TIMER ── */
-.timer-block {
-  background: var(--card); border: 1px solid var(--line); border-radius: 2px;
-  padding: 24px 28px; margin-bottom: 24px; position: relative; overflow: hidden;
-}
-.timer-block::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--timer), #f59e0b); }
-.timer-inner { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-.timer-label-wrap { flex: 1; }
-.timer-eyebrow { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
-.timer-title { font-size: 15px; font-weight: 500; }
-.timer-display { font-family: 'DM Mono', monospace; font-size: 40px; color: var(--timer); letter-spacing: 0.04em; min-width: 96px; text-align: center; }
-.timer-display.urgent { color: var(--danger); animation: pulse 0.8s infinite; }
-@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.45} }
-.timer-btn { padding: 10px 24px; background: var(--timer); color: #fff; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; transition: opacity 0.2s; }
-.timer-btn:hover { opacity: 0.85; }
-.timer-btn.running { background: var(--danger); }
-.timer-bar-wrap { width: 100%; height: 2px; background: var(--line); margin-top: 16px; overflow: hidden; border-radius: 1px; }
-.timer-bar { height: 100%; background: var(--timer); width: 100%; transition: width 1s linear, background 0.3s; border-radius: 1px; }
-.timer-bar.urgent { background: var(--danger); }
+/* STEPS */
+.steps{margin-top:56px}
+.step{display:grid;grid-template-columns:100px 1fr;gap:32px;padding:40px 0;border-top:1px solid var(--line);align-items:start}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step-n{font-family:'Playfair Display',serif;font-size:56px;color:var(--line);font-weight:400;line-height:1}
+.step-h{font-size:20px;font-weight:500;letter-spacing:-0.02em;margin-bottom:8px}
+.step-p{font-size:14px;color:var(--muted);line-height:1.7;max-width:480px}
 
-/* ── 90-DAY ── */
-.ninety-block { background: var(--card); border: 1px solid var(--line); border-radius: 2px; padding: 20px 28px; margin-bottom: 24px; }
-.ninety-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.ninety-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
-.ninety-count { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--fire); letter-spacing: 0.06em; }
-.ninety-track { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
-.ninety-fill { height: 100%; background: linear-gradient(90deg, var(--fire), var(--skill)); border-radius: 2px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
-.ninety-ticks { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 0.06em; }
-.ninety-btn { margin-top: 10px; font-size: 11px; color: var(--proj); background: none; border: 1px solid rgba(5,150,105,0.3); border-radius: 2px; padding: 5px 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
-.ninety-btn:hover { background: rgba(5,150,105,0.06); }
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line);gap:1px;background:var(--line)}
+.stat{background:var(--bg);padding:64px 48px;text-align:center}
+.stat-n{font-family:'Playfair Display',serif;font-size:clamp(52px,5.5vw,80px);font-weight:400;letter-spacing:-0.02em;line-height:1;margin-bottom:10px}
+.stat-l{font-size:12px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)}
 
-/* ── STREAKS ── */
-.section-ey { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
-.streak-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 36px; }
-.streak-tile { background: var(--card); padding: 20px 18px; position: relative; }
-.streak-tile::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
-.streak-tile.fire::before { background:var(--fire); }
-.streak-tile.book::before { background:var(--book); }
-.streak-tile.skill::before { background:var(--skill); }
-.streak-tile.proj::before { background:var(--proj); }
-.streak-num { font-family:'Playfair Display',serif; font-size:40px; font-weight:400; line-height:1; letter-spacing:-0.02em; margin-bottom:4px; }
-.streak-tile.fire .streak-num { color:var(--fire); }
-.streak-tile.book .streak-num { color:var(--book); }
-.streak-tile.skill .streak-num { color:var(--skill); }
-.streak-tile.proj .streak-num { color:var(--proj); }
-.streak-lbl { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:0.1em; }
+/* CTA */
+.cta{padding:120px 48px;text-align:center;border-bottom:1px solid var(--line)}
+.cta-h{font-family:'Playfair Display',serif;font-size:clamp(40px,6vw,84px);font-weight:400;line-height:1.1;letter-spacing:-0.02em;margin-bottom:20px}
+.cta-h em{font-style:italic;color:var(--muted)}
+.cta-p{font-size:16px;color:var(--muted);margin-bottom:48px}
 
-/* ── WEEK GRID ── */
-.week-section { margin-bottom: 40px; }
-.week-row { display: flex; gap: 6px; }
-.week-cell { flex:1; aspect-ratio:1; background:var(--card); border:1px solid var(--line); border-radius:2px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; position:relative; overflow:hidden; }
-.week-cell.today { border-color: var(--fg); }
-.week-cell.full { background:#f0fdf4; border-color:rgba(5,150,105,0.3); }
-.week-cell-day { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:0.06em; }
-.week-cell-dots { display:flex; gap:3px; }
-.week-dot { width:5px; height:5px; border-radius:50%; background:var(--line); }
-.week-dot.book { background:var(--book); }
-.week-dot.skill { background:var(--skill); }
-.week-dot.proj { background:var(--proj); }
+footer{padding:28px 48px;display:flex;justify-content:space-between;align-items:center}
+.foot-logo{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+.foot-links{display:flex;gap:24px;list-style:none}
+.foot-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color 0.2s}
+.foot-links a:hover{color:var(--fg)}
 
-/* ── HABITS ── */
-.habits-wrap { display:flex; flex-direction:column; gap:10px; margin-bottom:48px; }
-.habit-card { background:var(--card); border:1px solid var(--line); border-radius:2px; overflow:hidden; transition:border-color 0.2s; }
-.habit-card:hover { border-color:#ccc; }
-.habit-card.done { border-color:var(--proj); background:#f0fdf4; }
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
 
-.habit-head { display:flex; align-items:center; gap:16px; padding:20px 24px; cursor:pointer; user-select:none; }
-.habit-icon-wrap { width:40px; height:40px; border-radius:2px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
-.habit-icon-wrap.book { background:rgba(58,123,213,0.08); }
-.habit-icon-wrap.skill { background:rgba(139,92,246,0.08); }
-.habit-icon-wrap.proj { background:rgba(5,150,105,0.08); }
-.habit-meta-wrap { flex:1; }
-.habit-name { font-size:15px; font-weight:500; letter-spacing:-0.01em; margin-bottom:2px; }
-.habit-sub { font-size:11px; color:var(--muted); }
-.habit-chk { width:32px; height:32px; border-radius:50%; border:1.5px solid var(--line); background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; font-size:14px; color:transparent; }
-.habit-chk:hover { border-color:var(--proj); }
-.habit-chk.on { background:var(--proj); border-color:var(--proj); color:#fff; }
-
-.habit-toggle { font-family:'DM Mono',monospace; font-size:10px; color:var(--muted); cursor:pointer; padding:0 24px 14px; letter-spacing:0.1em; text-transform:uppercase; transition:color 0.2s; display:flex; align-items:center; gap:6px; }
-.habit-toggle:hover { color:var(--fg); }
-.habit-toggle svg { transition:transform 0.2s; }
-.habit-toggle.open svg { transform:rotate(180deg); }
-
-.habit-body { display:none; border-top:1px solid var(--line); padding:24px; }
-.habit-body.open { display:block; }
-
-.field-ey { font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
-.field-ey:not(:first-child) { margin-top:20px; }
-
-.pills { display:flex; gap:8px; flex-wrap:wrap; }
-.pill { padding:7px 16px; background:transparent; border:1px solid var(--line); border-radius:2px; font-size:12px; color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s; }
-.pill:hover { border-color:var(--fg); color:var(--fg); }
-.pill.on { background:var(--fg); color:var(--bg); border-color:var(--fg); }
-
-.text-input { width:100%; padding:10px 14px; background:var(--bg); border:1px solid var(--line); border-radius:2px; color:var(--fg); font-size:13px; font-family:'DM Sans',sans-serif; font-weight:300; outline:none; transition:border-color 0.2s; }
-.text-input:focus { border-color:var(--fg); }
-.text-input::placeholder { color:var(--muted); }
-textarea.text-input { resize:vertical; min-height:72px; line-height:1.65; }
-select.text-input { cursor:pointer; }
-
-/* ENERGY */
-.energy-row { display:flex; align-items:center; gap:14px; }
-.energy-slider { flex:1; -webkit-appearance:none; height:3px; border-radius:2px; background:var(--line); outline:none; cursor:pointer; }
-.energy-slider::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--skill); cursor:pointer; }
-.energy-val { font-family:'Playfair Display',serif; font-size:22px; color:var(--skill); min-width:24px; text-align:center; }
-
-/* DRILLS */
-.drill-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.drill-item { background:var(--bg); border:1px solid var(--line); border-radius:2px; overflow:hidden; transition:border-color 0.15s; }
-.drill-item.done { border-color:rgba(5,150,105,0.35); background:#f0fdf4; }
-.drill-head { display:flex; align-items:center; gap:10px; padding:10px 12px; cursor:pointer; user-select:none; }
-.drill-chk { width:18px; height:18px; border-radius:2px; border:1.5px solid var(--line); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.15s; font-size:11px; color:transparent; }
-.drill-item.done .drill-chk { background:var(--proj); border-color:var(--proj); color:#fff; }
-.drill-text-wrap { flex:1; }
-.drill-tag { font-size:9px; text-transform:uppercase; letter-spacing:0.08em; font-family:'DM Mono',monospace; margin-bottom:2px; }
-.drill-tag.vocal { color:var(--skill); }
-.drill-tag.nonvocal { color:var(--book); }
-.drill-text { font-size:12px; color:var(--muted); line-height:1.3; }
-.drill-item.done .drill-text { color:var(--fg); }
-.drill-expand { font-size:10px; color:var(--muted); flex-shrink:0; transition:transform 0.2s; }
-.drill-item.info-open .drill-expand { transform:rotate(180deg); }
-.drill-info { display:none; padding:0 12px 12px; border-top:1px solid var(--line); }
-.drill-item.info-open .drill-info { display:block; }
-.drill-how { font-size:11px; color:var(--muted); line-height:1.7; margin-top:10px; }
-.drill-how strong { color:var(--fg); font-weight:500; display:block; margin-bottom:2px; margin-top:8px; }
-.drill-how ol { padding-left:16px; }
-.drill-how li { margin-bottom:2px; }
-
-/* ── DEADLINE SELECTOR ── */
-.deadline-row { display:flex; gap:8px; flex-wrap:wrap; }
-
-/* ── SAVE ── */
-.save-btn { width:100%; padding:16px; background:var(--fg); color:var(--bg); border:none; border-radius:2px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; transition:opacity 0.2s, transform 0.2s; margin-top:32px; }
-.save-btn:hover { opacity:0.84; transform:translateY(-2px); }
-
-/* ── TOAST ── */
-.toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--fg); color:var(--bg); padding:11px 24px; border-radius:2px; font-size:13px; font-weight:500; z-index:999; transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1); white-space:nowrap; }
-.toast.show { transform:translateX(-50%) translateY(0); }
-
-/* Divider */
-.divider { border:none; border-top:1px solid var(--line); margin:40px 0; }
-
-/* ── MOBILE ── */
-@media (max-width:600px) {
-  .topbar { padding:14px 20px; }
-  .topbar-date { display:none; }
-  .wrap { padding:0 20px 72px; }
-  .streak-row { grid-template-columns:repeat(2,1fr); }
-  .drill-grid { grid-template-columns:1fr; }
-  .timer-inner { flex-direction:column; align-items:flex-start; }
+@media(max-width:768px){
+  nav{padding:16px 24px}
+  .nav-links{display:none}
+  .hero{padding:0 24px 60px}
+  .hero-bot{flex-direction:column;align-items:flex-start;gap:28px}
+  .section{padding:64px 24px}
+  .two-col{grid-template-columns:1fr;gap:36px}
+  .tiles{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+  .step{grid-template-columns:60px 1fr;gap:20px}
+  .cta{padding:72px 24px}
+  footer{padding:24px;flex-direction:column;gap:12px}
 }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <a href="landing.html" class="topbar-logo">Stay Sharp</a>
-  <div class="topbar-right">
-    <span class="topbar-date" id="dateBadge"></span>
-    <span class="sync-pill" id="syncPill">syncing…</span>
-    <a href="dashboard.html" class="topbar-link">Dashboard →</a>
+<nav id="nav">
+  <a href="#" class="nav-logo">Stay Sharp</a>
+  <ul class="nav-links">
+    <li><a href="#habits">Habits</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="index.html" class="nav-cta">Start tracking →</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">Daily accountability · Personal system · 2025</div>
+  <h1 class="hero-h">Three habits.<br><em>No excuses.</em><br>Every day.</h1>
+  <div class="hero-bot">
+    <p class="hero-sub">A daily tracker for the things that compound — reading, communication, and building. Log, reflect, and get called out when you miss.</p>
+    <div class="btn-row">
+      <a href="index.html" class="btn-dark">Start Tracking</a>
+      <a href="dashboard.html" class="btn-ghost">View Dashboard</a>
+    </div>
+  </div>
+</section>
+
+<div class="marquee-band" aria-hidden="true">
+  <div class="marquee-inner">
+    <span class="marquee-item"><b>📚</b>Book Reading</span>
+    <span class="marquee-item"><b>🗣</b>Soft Skills</span>
+    <span class="marquee-item"><b>💻</b>Side Project</span>
+    <span class="marquee-item"><b>🔥</b>Daily Streaks</span>
+    <span class="marquee-item"><b>📲</b>WhatsApp Alerts</span>
+    <span class="marquee-item"><b>📊</b>Dashboard</span>
+    <span class="marquee-item"><b>⚡</b>5-Min Trigger</span>
+    <span class="marquee-item"><b>🗓</b>90-Day Commit</span>
+    <span class="marquee-item"><b>📚</b>Book Reading</span>
+    <span class="marquee-item"><b>🗣</b>Soft Skills</span>
+    <span class="marquee-item"><b>💻</b>Side Project</span>
+    <span class="marquee-item"><b>🔥</b>Daily Streaks</span>
+    <span class="marquee-item"><b>📲</b>WhatsApp Alerts</span>
+    <span class="marquee-item"><b>📊</b>Dashboard</span>
+    <span class="marquee-item"><b>⚡</b>5-Min Trigger</span>
+    <span class="marquee-item"><b>🗓</b>90-Day Commit</span>
   </div>
 </div>
 
-<div class="wrap">
-  <div class="page-head">
-    <div class="page-eyebrow">Daily log</div>
-    <h1 class="page-title">Lock in <em>today's reps.</em></h1>
-  </div>
-
-  <div class="missed-banner" id="missedBanner"></div>
-
-  <!-- TIMER -->
-  <div class="timer-block">
-    <div class="timer-inner">
-      <div class="timer-label-wrap">
-        <div class="timer-eyebrow">Momentum trigger</div>
-        <div class="timer-title">⚡ 5-Minute Start</div>
-      </div>
-      <div class="timer-display" id="timerDisplay">5:00</div>
-      <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">Start</button>
+<section class="section">
+  <div class="sec-ey">00 — What is this</div>
+  <div class="two-col">
+    <h2 class="col-h">Built for and by the person who keeps <em>almost</em> starting.</h2>
+    <div class="col-p">
+      <p>Stay Sharp is a personal accountability system for three non-negotiable daily habits: reading, soft skills, and a side project.</p>
+      <p>Log every session. See your streaks. Get a shame notification — WhatsApp, push, or email — if you don't show up before your deadline.</p>
+      <p>No coaching. No community. Just you and the log.</p>
     </div>
-    <div class="timer-bar-wrap"><div class="timer-bar" id="timerBar"></div></div>
   </div>
+</section>
 
-  <!-- 90-DAY -->
-  <div class="ninety-block">
-    <div class="ninety-head">
-      <div class="ninety-label">90-Day Commitment</div>
-      <span class="ninety-count" id="ninetyCount">Not started</span>
-    </div>
-    <div class="ninety-track"><div class="ninety-fill" id="ninetyBar" style="width:0%"></div></div>
-    <div class="ninety-ticks"><span>Start</span><span>30 days</span><span>60 days</span><span>90 days</span></div>
-    <button class="ninety-btn" onclick="startNinetyDay()">↺ Reset / start 90-day clock today</button>
+<section class="section" id="habits">
+  <div class="sec-ey">01 — The three reps</div>
+  <div class="tiles">
+    <div class="tile book"><div class="tile-accent"></div><div class="tile-n">01</div><div class="tile-e">📚</div><div class="tile-h">Book Reading</div><div class="tile-p">Log sessions, pages, key takeaways. Track your streak. Build a library of what you've actually absorbed.</div></div>
+    <div class="tile skill"><div class="tile-accent"></div><div class="tile-n">02</div><div class="tile-e">🗣</div><div class="tile-h">Soft Skills</div><div class="tile-p">Vocal drills, communication practice, decision making. The skills everyone needs but nobody trains daily.</div></div>
+    <div class="tile proj"><div class="tile-accent"></div><div class="tile-n">03</div><div class="tile-e">💻</div><div class="tile-h">Side Project</div><div class="tile-p">Log your task, time, and what you shipped or unblocked. Consistency over intensity. Always.</div></div>
   </div>
+</section>
 
-  <!-- STREAKS -->
-  <div class="section-ey">Current streaks</div>
-  <div class="streak-row">
-    <div class="streak-tile fire"><div class="streak-num" id="sAll">0</div><div class="streak-lbl">🔥 Streak</div></div>
-    <div class="streak-tile book"><div class="streak-num" id="sBook">0</div><div class="streak-lbl">📚 Reading</div></div>
-    <div class="streak-tile skill"><div class="streak-num" id="sSkill">0</div><div class="streak-lbl">🗣 Skills</div></div>
-    <div class="streak-tile proj"><div class="streak-num" id="sProj">0</div><div class="streak-lbl">💻 Project</div></div>
+<section class="section" id="how">
+  <div class="sec-ey">02 — How it works</div>
+  <div class="steps">
+    <div class="step"><div class="step-n">01</div><div><div class="step-h">Open the tracker each day</div><p class="step-p">The interface resets every morning. Your streak history persists. Your excuses don't.</p></div></div>
+    <div class="step"><div class="step-n">02</div><div><div class="step-h">Log each habit with details</div><p class="step-p">Time spent, notes, reflections. Logging is the habit — writing it down is the commitment.</p></div></div>
+    <div class="step"><div class="step-n">03</div><div><div class="step-h">Set your deadline</div><p class="step-p">8 PM, 10 PM, or midnight. Whatever you choose, the system holds you to it.</p></div></div>
+    <div class="step"><div class="step-n">04</div><div><div class="step-h">Get called out if you miss</div><p class="step-p">WhatsApp message, push notification, and email to your accountability partner. No hiding.</p></div></div>
+    <div class="step"><div class="step-n">05</div><div><div class="step-h">Review your dashboard</div><p class="step-p">Streaks, weekly heatmap, hours logged, consistency rate. See the shape of your discipline.</p></div></div>
   </div>
+</section>
 
-  <!-- WEEK -->
-  <div class="week-section">
-    <div class="section-ey">Last 7 days</div>
-    <div class="week-row" id="weekRow"></div>
-  </div>
-
-  <!-- HABITS -->
-  <div class="section-ey">Today's reps</div>
-  <div class="habits-wrap">
-
-    <!-- BOOK -->
-    <div class="habit-card" id="card-book">
-      <div class="habit-head" onclick="toggleDetail('book')">
-        <div class="habit-icon-wrap book">📚</div>
-        <div class="habit-meta-wrap">
-          <div class="habit-name">Book Reading</div>
-          <div class="habit-sub" id="sub-book">Log your session</div>
-        </div>
-        <button class="habit-chk" id="chk-book" onclick="event.stopPropagation();toggleCheck('book')">✓</button>
-      </div>
-      <div class="habit-toggle" id="tog-book" onclick="toggleDetail('book')">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
-        <span class="tog-label">Log details</span>
-      </div>
-      <div class="habit-body" id="det-book">
-        <div class="field-ey">Time spent</div>
-        <div class="pills" id="pills-book">
-          <button class="pill" data-val="15" onclick="selMin('book',15)">15 min</button>
-          <button class="pill" data-val="30" onclick="selMin('book',30)">30 min</button>
-          <button class="pill" data-val="45" onclick="selMin('book',45)">45 min</button>
-          <button class="pill" data-val="60" onclick="selMin('book',60)">60+ min</button>
-        </div>
-        <div class="field-ey">Book / page</div>
-        <input class="text-input" id="note-book" placeholder="e.g. Atomic Habits — p.142">
-        <div class="field-ey">Key takeaway</div>
-        <textarea class="text-input" id="ref-book" placeholder="What stuck with you today?"></textarea>
-      </div>
-    </div>
-
-    <!-- SKILL -->
-    <div class="habit-card" id="card-skill">
-      <div class="habit-head" onclick="toggleDetail('skill')">
-        <div class="habit-icon-wrap skill">🗣</div>
-        <div class="habit-meta-wrap">
-          <div class="habit-name">Soft Skills</div>
-          <div class="habit-sub" id="sub-skill">Log your session</div>
-        </div>
-        <button class="habit-chk" id="chk-skill" onclick="event.stopPropagation();toggleCheck('skill')">✓</button>
-      </div>
-      <div class="habit-toggle" id="tog-skill" onclick="toggleDetail('skill')">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
-        <span class="tog-label">Log details</span>
-      </div>
-      <div class="habit-body" id="det-skill">
-        <div class="field-ey">Category</div>
-        <select class="text-input" id="cat-skill">
-          <option value="">Select category</option>
-          <option value="Vocal Drills">Vocal Drills</option>
-          <option value="Non-Vocal Cues">Non-Vocal Cues</option>
-          <option value="Decision Practice">Decision Practice</option>
-        </select>
-        <div class="field-ey">Time spent</div>
-        <div class="pills" id="pills-skill">
-          <button class="pill" data-val="15" onclick="selMin('skill',15)">15 min</button>
-          <button class="pill" data-val="30" onclick="selMin('skill',30)">30 min</button>
-          <button class="pill" data-val="45" onclick="selMin('skill',45)">45 min</button>
-          <button class="pill" data-val="60" onclick="selMin('skill',60)">60+ min</button>
-        </div>
-        <div class="field-ey">Energy level — <span id="energy-val-skill">5</span>/10</div>
-        <div class="energy-row">
-          <input type="range" min="1" max="10" value="5" class="energy-slider" id="energy-skill" oninput="updateEnergy('skill',this.value)">
-          <div class="energy-val" id="energy-num-skill">5</div>
-        </div>
-        <div class="field-ey">Daily drills — tap ▾ for how-to</div>
-        <div class="drill-grid">
-          <div class="drill-item" id="drill-nursery_rhyme">
-            <div class="drill-head" onclick="toggleDrillItem('skill','nursery_rhyme',event)">
-              <div class="drill-chk" id="dchk-skill-nursery_rhyme">✓</div>
-              <div class="drill-text-wrap"><div class="drill-tag vocal">Vocal</div><div class="drill-text">Nursery Rhyme Stretch</div></div>
-              <div class="drill-expand">▾</div>
-            </div>
-            <div class="drill-info"><div class="drill-how"><strong>What it is</strong>Recite any nursery rhyme, stretching every vowel 2-3x longer than normal.<strong>Why it works</strong>Loosens jaw tension, warms up vocal range, improves articulation.</div></div>
-          </div>
-          <div class="drill-item" id="drill-stress_verb">
-            <div class="drill-head" onclick="toggleDrillItem('skill','stress_verb',event)">
-              <div class="drill-chk" id="dchk-skill-stress_verb">✓</div>
-              <div class="drill-text-wrap"><div class="drill-tag vocal">Vocal</div><div class="drill-text">Stressing the Verb</div></div>
-              <div class="drill-expand">▾</div>
-            </div>
-            <div class="drill-info"><div class="drill-how"><strong>What it is</strong>Say the same sentence 6 times, stressing a different word each time.<strong>Why it works</strong>Trains intentional speech — commanding presence comes from knowing which word to land on.</div></div>
-          </div>
-          <div class="drill-item" id="drill-box_gesture">
-            <div class="drill-head" onclick="toggleDrillItem('skill','box_gesture',event)">
-              <div class="drill-chk" id="dchk-skill-box_gesture">✓</div>
-              <div class="drill-text-wrap"><div class="drill-tag nonvocal">Non-Vocal</div><div class="drill-text">The "Box" Gesture</div></div>
-              <div class="drill-expand">▾</div>
-            </div>
-            <div class="drill-info"><div class="drill-how"><strong>What it is</strong>Hold hands chest-height, form a rectangle, move hands to outline it while making a point.<strong>Why it works</strong>Controlled gestures signal authority. Keeps hands in the power zone.</div></div>
-          </div>
-          <div class="drill-item" id="drill-eye_lock">
-            <div class="drill-head" onclick="toggleDrillItem('skill','eye_lock',event)">
-              <div class="drill-chk" id="dchk-skill-eye_lock">✓</div>
-              <div class="drill-text-wrap"><div class="drill-tag nonvocal">Non-Vocal</div><div class="drill-text">3-Second Eye Lock</div></div>
-              <div class="drill-expand">▾</div>
-            </div>
-            <div class="drill-info"><div class="drill-how"><strong>What it is</strong>Hold eye contact for exactly 3 seconds, break to the side (not down), repeat 3× per conversation.<strong>Why it works</strong>Breaking down signals submission. Breaking to the side signals certainty.</div></div>
-          </div>
-        </div>
-        <div class="field-ey">Activity / notes</div>
-        <input class="text-input" id="note-skill" placeholder="e.g. Toastmasters, mock presentation, networking">
-        <div class="field-ey">Reflection</div>
-        <textarea class="text-input" id="ref-skill" placeholder="What did you practise or notice?"></textarea>
-        <div class="field-ey">⚡ One-minute decision</div>
-        <input class="text-input" id="decision-skill" placeholder="A quick call you made without overthinking…">
-      </div>
-    </div>
-
-    <!-- PROJECT -->
-    <div class="habit-card" id="card-proj">
-      <div class="habit-head" onclick="toggleDetail('proj')">
-        <div class="habit-icon-wrap proj">💻</div>
-        <div class="habit-meta-wrap">
-          <div class="habit-name">Side Project</div>
-          <div class="habit-sub" id="sub-proj">Log your session</div>
-        </div>
-        <button class="habit-chk" id="chk-proj" onclick="event.stopPropagation();toggleCheck('proj')">✓</button>
-      </div>
-      <div class="habit-toggle" id="tog-proj" onclick="toggleDetail('proj')">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
-        <span class="tog-label">Log details</span>
-      </div>
-      <div class="habit-body" id="det-proj">
-        <div class="field-ey">Time spent</div>
-        <div class="pills" id="pills-proj">
-          <button class="pill" data-val="30" onclick="selMin('proj',30)">30 min</button>
-          <button class="pill" data-val="60" onclick="selMin('proj',60)">60 min</button>
-          <button class="pill" data-val="90" onclick="selMin('proj',90)">90 min</button>
-          <button class="pill" data-val="120" onclick="selMin('proj',120)">120+ min</button>
-        </div>
-        <div class="field-ey">Task worked on</div>
-        <input class="text-input" id="note-proj" placeholder="e.g. FastAPI auth endpoint">
-        <div class="field-ey">Progress / blockers</div>
-        <textarea class="text-input" id="ref-proj" placeholder="What did you ship or unblock?"></textarea>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- DEADLINE only — no ntfy/email/WA shown here -->
-  <div class="section-ey">Send reminder if not done by</div>
-  <div class="deadline-row" style="margin-bottom:12px">
-    <button class="pill" onclick="selDeadline('8pm')">8 PM</button>
-    <button class="pill" onclick="selDeadline('9pm')">9 PM</button>
-    <button class="pill on" onclick="selDeadline('10pm')">10 PM</button>
-    <button class="pill" onclick="selDeadline('11pm')">11 PM</button>
-    <button class="pill" onclick="selDeadline('midnight')">Midnight</button>
-  </div>
-  <p style="font-size:11px;color:var(--muted);margin-bottom:32px;">Notification settings are managed in the <a href="dashboard.html" style="color:var(--book);text-decoration:none;">Dashboard →</a></p>
-
-  <button class="save-btn" onclick="saveDay()">Lock In Today</button>
+<div class="stats">
+  <div class="stat"><div class="stat-n">3</div><div class="stat-l">Daily habits tracked</div></div>
+  <div class="stat"><div class="stat-n">365</div><div class="stat-l">Days of streak history</div></div>
+  <div class="stat"><div class="stat-n">0</div><div class="stat-l">Excuses accepted</div></div>
 </div>
 
-<div class="toast" id="toast"></div>
+<section class="cta">
+  <h2 class="cta-h">Ready to<br><em>stay sharp?</em></h2>
+  <p class="cta-p">Start logging today. Your future self will either thank you or be embarrassed by you.</p>
+  <a href="index.html" class="btn-dark">Start Tracking →</a>
+</section>
+
+<footer>
+  <div class="foot-logo">Stay Sharp · 2025</div>
+  <ul class="foot-links">
+    <li><a href="index.html">Tracker</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+  </ul>
+</footer>
 
 <script>
-const BACKEND_URL = 'https://staysharp-backend-production.up.railway.app';
-const HABITS = ['book','skill','proj'];
-const DAY_NAMES = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-const DRILL_KEYS = ['nursery_rhyme','stress_verb','box_gesture','eye_lock'];
-const state = { mins:{book:0,skill:0,proj:0}, deadline:'10pm', drills:{skill:{}} };
-
-/* ── TIMER ── */
-const TIMER_DURATION = 5*60;
-let timerSec=TIMER_DURATION, timerInt=null, timerOn=false;
-function toggleTimer(){
-  if(timerOn){
-    clearInterval(timerInt);timerOn=false;timerSec=TIMER_DURATION;renderTimer();
-    document.getElementById('timerBtn').textContent='Start';
-    document.getElementById('timerBtn').classList.remove('running');
-  } else {
-    timerOn=true;
-    document.getElementById('timerBtn').textContent='Stop';
-    document.getElementById('timerBtn').classList.add('running');
-    timerInt=setInterval(()=>{
-      timerSec--;renderTimer();
-      if(timerSec<=0){
-        clearInterval(timerInt);timerOn=false;
-        document.getElementById('timerBtn').textContent='Again';
-        document.getElementById('timerBtn').classList.remove('running');
-        showToast('⚡ 5 minutes done — keep going!');
-        // Trigger ntfy via backend (topic stays server-side)
-        fetch(`${BACKEND_URL}/notify-timer`,{method:'POST'}).catch(()=>{});
-      }
-    },1000);
-  }
-}
-function renderTimer(){
-  const m=Math.floor(timerSec/60),s=timerSec%60;
-  document.getElementById('timerDisplay').textContent=`${m}:${s.toString().padStart(2,'0')}`;
-  document.getElementById('timerBar').style.width=(timerSec/TIMER_DURATION*100)+'%';
-  const urgent=timerSec<=30;
-  document.getElementById('timerDisplay').classList.toggle('urgent',urgent);
-  document.getElementById('timerBar').classList.toggle('urgent',urgent);
-}
-
-/* ── 90-DAY ── */
-function updateNinetyDay(start){
-  if(!start){document.getElementById('ninetyCount').textContent='Not started';document.getElementById('ninetyBar').style.width='0%';return;}
-  const days=Math.max(0,Math.min(Math.floor((new Date()-new Date(start))/(864e5)),90));
-  document.getElementById('ninetyCount').textContent=`Day ${days} of 90`;
-  document.getElementById('ninetyBar').style.width=(days/90*100)+'%';
-}
-function startNinetyDay(){
-  const today=new Date().toISOString().split('T')[0];
-  const s=getSettings();s.ninety_day_start=today;setSettings(s);
-  updateNinetyDay(today);showToast('🗓 90-day clock started!');
-}
-
-/* ── DRILLS ── */
-function toggleDrillItem(habit,drill,event){
-  if(event.target.classList.contains('drill-expand')||event.target.closest('.drill-expand')){
-    document.getElementById(`drill-${drill}`)?.classList.toggle('info-open');return;
-  }
-  if(!state.drills[habit])state.drills[habit]={};
-  state.drills[habit][drill]=!state.drills[habit][drill];
-  renderDrill(habit,drill);
-}
-function renderDrill(habit,drill){
-  const done=!!(state.drills[habit]&&state.drills[habit][drill]);
-  document.getElementById(`dchk-${habit}-${drill}`)?.classList.toggle('done',done);
-  document.getElementById(`drill-${drill}`)?.classList.toggle('done',done);
-}
-function renderAllDrills(){DRILL_KEYS.forEach(d=>renderDrill('skill',d));}
-
-/* ── ENERGY ── */
-function updateEnergy(h,val){
-  document.getElementById(`energy-val-${h}`).textContent=val;
-  document.getElementById(`energy-num-${h}`).textContent=val;
-}
-
-/* ── STORAGE ── */
-function todayKey(){const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;}
-function getStore(){try{return JSON.parse(localStorage.getItem('staysharp_v2')||'{}')}catch{return{}}}
-function setStore(d){try{localStorage.setItem('staysharp_v2',JSON.stringify(d))}catch{}}
-function getSettings(){try{return JSON.parse(localStorage.getItem('staysharp_settings')||'{}')}catch{return{}}}
-function setSettings(d){try{localStorage.setItem('staysharp_settings',JSON.stringify(d))}catch{}}
-
-/* ── CLOUD SYNC ── */
-async function syncFromCloud(){
-  const pill=document.getElementById('syncPill');
-  try{
-    const [logRes,settRes]=await Promise.all([
-      fetch(`${BACKEND_URL}/get-all`),
-      fetch(`${BACKEND_URL}/get-settings`)
-    ]);
-    const logData=await logRes.json();
-    const settData=await settRes.json();
-    if(logData.ok){const store=getStore();Object.assign(store,logData.data);setStore(store);}
-    if(settData.ok&&settData.settings){
-      const s=settData.settings;
-      const local=getSettings();
-      const merged={...s,...local};
-      // Only sync non-sensitive deadline from server
-      if(s.deadline&&!local.deadline) merged.deadline=s.deadline;
-      if(s.ninety_day_start) merged.ninety_day_start=s.ninety_day_start;
-      setSettings(merged);
-    }
-    pill.textContent='✓ synced';pill.className='sync-pill ok';
-    setTimeout(()=>pill.style.display='none',2000);
-    return getStore();
-  }catch{
-    pill.textContent='offline';pill.className='sync-pill err';
-    setTimeout(()=>pill.style.display='none',3000);
-    return getStore();
-  }
-}
-
-/* ── INIT ── */
-async function init(){
-  document.getElementById('dateBadge').textContent=
-    new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}).toUpperCase();
-
-  const store=await syncFromCloud();
-  const settings=getSettings();
-  const todayData=store[todayKey()]||{};
-
-  if(settings.deadline){state.deadline=settings.deadline;selDeadline(settings.deadline,true);}
-  updateNinetyDay(settings.ninety_day_start||'');
-
-  HABITS.forEach(h=>{
-    const d=todayData[h];if(!d)return;
-    if(d.checked){document.getElementById('chk-'+h).classList.add('on');document.getElementById('card-'+h).classList.add('done');}
-    if(d.mins)selMin(h,d.mins,true);
-    if(d.note)document.getElementById('note-'+h).value=d.note;
-    if(d.ref)document.getElementById('ref-'+h).value=d.ref;
-    if(h==='skill'){
-      const ce=document.getElementById('cat-skill');if(ce&&d.category)ce.value=d.category;
-      const ee=document.getElementById('energy-skill');if(ee&&d.energy!=null){ee.value=d.energy;updateEnergy('skill',d.energy);}
-      const de=document.getElementById('decision-skill');if(de&&d.one_min_decision)de.value=d.one_min_decision;
-      if(d.vocal_drills||d.nonvocal_drills){
-        state.drills.skill=Object.assign({},d.vocal_drills||{},d.nonvocal_drills||{});
-        renderAllDrills();
-      }
-    }
-    updateSub(h,d);
-  });
-
-  // Missed yesterday
-  const y=new Date();y.setDate(y.getDate()-1);
-  const yk=`${y.getFullYear()}-${y.getMonth()+1}-${y.getDate()}`;
-  const yd=store[yk];
-  const b=document.getElementById('missedBanner');
-  if(yd){
-    const missed=HABITS.filter(h=>!yd[h]?.checked);
-    if(missed.length){
-      const names={book:'Reading',skill:'Soft Skills',proj:'Side Project'};
-      b.innerHTML=`Yesterday you missed: <strong>${missed.map(h=>names[h]).join(', ')}</strong>. Don't let it become a pattern.`;
-      b.classList.add('show');
-    }
-  } else {
-    b.innerHTML='Yesterday had no log at all.';b.classList.add('show');
-  }
-
-  buildWeekGrid(store);calcStreaks(store);scheduleDeadlineCheck();
-}
-
-function updateSub(h,d){
-  const el=document.getElementById('sub-'+h);if(!d)return;
-  const parts=[];
-  if(d.mins)parts.push(d.mins+' min');
-  if(h==='skill'&&d.energy)parts.push(`E:${d.energy}`);
-  if(h==='skill'&&d.category)parts.push(d.category);
-  if(d.note)parts.push(d.note.slice(0,24));
-  if(parts.length)el.textContent=parts.join(' · ');
-}
-
-function buildWeekGrid(store){
-  const grid=document.getElementById('weekRow');grid.innerHTML='';
-  const today=new Date();
-  for(let i=6;i>=0;i--){
-    const d=new Date(today);d.setDate(today.getDate()-i);
-    const key=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-    const data=store[key]||{};
-    const cell=document.createElement('div');
-    cell.className='week-cell'+(i===0?' today':'');
-    if(HABITS.every(h=>data[h]?.checked))cell.classList.add('full');
-    cell.innerHTML=`<div class="week-cell-day">${DAY_NAMES[d.getDay()]}</div><div class="week-cell-dots"><div class="week-dot ${data.book?.checked?'book':''}"></div><div class="week-dot ${data.skill?.checked?'skill':''}"></div><div class="week-dot ${data.proj?.checked?'proj':''}"></div></div>`;
-    grid.appendChild(cell);
-  }
-}
-
-function calcStreaks(store){
-  const today=new Date();
-  const cs=fn=>{let c=0;for(let i=0;i<365;i++){const d=new Date(today);d.setDate(today.getDate()-i);const k=`${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;if(fn(store[k]||{}))c++;else if(i>0)break;}return c;};
-  document.getElementById('sAll').textContent=cs(d=>HABITS.every(h=>d[h]?.checked));
-  document.getElementById('sBook').textContent=cs(d=>d.book?.checked);
-  document.getElementById('sSkill').textContent=cs(d=>d.skill?.checked);
-  document.getElementById('sProj').textContent=cs(d=>d.proj?.checked);
-}
-
-function toggleCheck(h){
-  const btn=document.getElementById('chk-'+h);btn.classList.toggle('on');
-  document.getElementById('card-'+h).classList.toggle('done',btn.classList.contains('on'));
-}
-function toggleDetail(h){
-  const det=document.getElementById('det-'+h),tog=document.getElementById('tog-'+h);
-  const open=det.classList.toggle('open');tog.classList.toggle('open',open);
-  tog.querySelector('.tog-label').textContent=open?'Collapse':'Log details';
-}
-function selMin(h,m,silent){
-  state.mins[h]=m;
-  document.querySelectorAll(`#pills-${h} .pill`).forEach(b=>b.classList.toggle('on',parseInt(b.getAttribute('data-val'))===m));
-}
-function selDeadline(val,silent){
-  state.deadline=val;
-  document.querySelectorAll('.deadline-row .pill').forEach(b=>b.classList.toggle('on',b.textContent.trim().toLowerCase().replace(/\s/g,'')===val));
-}
-
-function saveDay(){
-  const store=getStore(),today=todayKey();
-  if(!store[today])store[today]={};
-  const drills=state.drills.skill||{};
-  HABITS.forEach(h=>{
-    store[today][h]={
-      checked:document.getElementById('chk-'+h).classList.contains('on'),
-      mins:state.mins[h],
-      note:document.getElementById('note-'+h).value,
-      ref:document.getElementById('ref-'+h).value,
-      ...(h==='skill'&&{
-        category:document.getElementById('cat-skill').value,
-        energy:parseInt(document.getElementById('energy-skill').value)||5,
-        one_min_decision:document.getElementById('decision-skill').value,
-        vocal_drills:{nursery_rhyme:!!drills.nursery_rhyme,stress_verb:!!drills.stress_verb},
-        nonvocal_drills:{box_gesture:!!drills.box_gesture,eye_lock:!!drills.eye_lock}
-      })
-    };
-    updateSub(h,store[today][h]);
-  });
-  setStore(store);
-  const settings=getSettings();settings.deadline=state.deadline;setSettings(settings);
-  buildWeekGrid(store);calcStreaks(store);
-  const done=HABITS.filter(h=>store[today][h].checked).length;
-  showToast(done===3?'🔥 All three done. Streak intact.':`Saved — ${done}/3 habits logged.`);
-  // Push to backend — sensitive fields (ntfy/email/whatsapp) NOT sent from frontend
-  fetch(`${BACKEND_URL}/save`,{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({date:today,log:store[today],settings:{deadline:state.deadline,ninety_day_start:settings.ninety_day_start||'',name:settings.name||''}})
-  }).catch(()=>console.warn('Backend sync failed'));
-}
-
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';
-  setTimeout(()=>t.classList.remove('show'),3000);
-}
-
-function scheduleDeadlineCheck(){
-  const map={'8pm':20,'9pm':21,'10pm':22,'11pm':23,'midnight':0};
-  function check(){
-    const now=new Date(),hour=now.getHours(),s=getSettings();
-    const dh=map[s.deadline||'10pm'];
-    if(dh!==0&&hour<dh)return;if(dh===0&&hour!==0)return;
-    const td=getStore()[todayKey()]||{};
-    const missed=HABITS.filter(h=>!td[h]?.checked);
-    if(!missed.length)return;
-    const nk=`notif_${todayKey()}`;if(localStorage.getItem(nk))return;
-    localStorage.setItem(nk,'1');
-    // Trigger via backend — keeps topic private
-    fetch(`${BACKEND_URL}/trigger-notify`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({missed})}).catch(()=>{});
-  }
-  setInterval(check,5*60*1000);check();
-}
-
-init();
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60));
+const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('in'),i*120);});},{threshold:0.15});
+document.querySelectorAll('.tile').forEach(el=>obs.observe(el));
 </script>
 </body>
 </html>
