@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stay Sharp</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f8f7f4; --fg: #111111; --muted: #888880; --line: #e2e1dc;
+  --book: #3a7bd5; --skill: #8b5cf6; --proj: #059669;
+}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--fg);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.6;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;justify-content:space-between;align-items:center;padding:20px 48px;background:rgba(248,247,244,0);border-bottom:1px solid transparent;transition:all 0.4s}
+nav.scrolled{background:rgba(248,247,244,0.95);border-bottom-color:var(--line);backdrop-filter:blur(10px)}
+.nav-logo{font-family:'DM Mono',monospace;font-size:13px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg);text-decoration:none}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+.nav-links a{font-size:13px;color:var(--muted);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--fg)}
+.nav-cta{background:var(--fg)!important;color:var(--bg)!important;padding:9px 20px;border-radius:2px}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 48px 80px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:24px;animation:rise 0.9s 0.2s both}
+.hero-h{font-family:'Playfair Display',serif;font-size:clamp(60px,9vw,120px);line-height:1.0;letter-spacing:-0.02em;font-weight:400;max-width:940px;animation:rise 0.9s 0.35s both}
+.hero-h em{font-style:italic;color:var(--muted)}
+.hero-bot{margin-top:56px;display:flex;align-items:flex-end;justify-content:space-between;animation:rise 0.9s 0.5s both}
+.hero-sub{font-size:16px;color:var(--muted);max-width:420px;line-height:1.75}
+.btn-row{display:flex;gap:12px}
+.btn-dark{padding:14px 32px;background:var(--fg);color:var(--bg);font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:0.04em;border:none;border-radius:2px;cursor:pointer;text-decoration:none;display:inline-block;transition:opacity 0.2s,transform 0.2s}
+.btn-dark:hover{opacity:0.82;transform:translateY(-2px)}
+.btn-ghost{padding:14px 32px;background:transparent;color:var(--fg);font-size:13px;font-family:'DM Sans',sans-serif;letter-spacing:0.04em;border:1px solid var(--line);border-radius:2px;cursor:pointer;text-decoration:none;display:inline-block;transition:border-color 0.2s,transform 0.2s}
+.btn-ghost:hover{border-color:var(--fg);transform:translateY(-2px)}
+
+/* MARQUEE */
+.marquee-band{overflow:hidden;white-space:nowrap;background:var(--fg);padding:12px 0;border-bottom:1px solid var(--line)}
+.marquee-inner{display:inline-flex;animation:marquee 20s linear infinite}
+.marquee-item{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(248,247,244,0.5);padding:0 36px}
+.marquee-item b{color:#fff;font-weight:400;margin-right:8px}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* SECTIONS */
+.section{padding:96px 48px;border-bottom:1px solid var(--line)}
+.sec-ey{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);margin-bottom:56px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.col-h{font-family:'Playfair Display',serif;font-size:clamp(28px,3.5vw,46px);font-weight:400;line-height:1.2;letter-spacing:-0.01em}
+.col-h em{font-style:italic;color:var(--muted)}
+.col-p{font-size:15px;color:var(--muted);line-height:1.8}
+.col-p p+p{margin-top:16px}
+
+/* TILES */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:56px}
+.tile{background:var(--bg);padding:48px 40px;position:relative;overflow:hidden;opacity:0;transform:translateY(28px);transition:opacity 0.6s,transform 0.6s,background 0.3s}
+.tile.in{opacity:1;transform:translateY(0)}
+.tile:hover{background:#f3f2ef}
+.tile:nth-child(2){transition-delay:0.1s}
+.tile:nth-child(3){transition-delay:0.2s}
+.tile-accent{position:absolute;bottom:0;left:0;right:0;height:3px;opacity:0;transition:opacity 0.3s}
+.tile:hover .tile-accent{opacity:1}
+.tile.book .tile-accent{background:var(--book)}
+.tile.skill .tile-accent{background:var(--skill)}
+.tile.proj .tile-accent{background:var(--proj)}
+.tile-n{font-family:'Playfair Display',serif;font-size:80px;color:var(--line);line-height:1;margin-bottom:20px;font-weight:400}
+.tile-e{font-size:26px;margin-bottom:14px}
+.tile-h{font-size:17px;font-weight:500;margin-bottom:10px;letter-spacing:-0.01em}
+.tile-p{font-size:14px;color:var(--muted);line-height:1.7}
+
+/* STEPS */
+.steps{margin-top:56px}
+.step{display:grid;grid-template-columns:100px 1fr;gap:32px;padding:40px 0;border-top:1px solid var(--line);align-items:start}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step-n{font-family:'Playfair Display',serif;font-size:56px;color:var(--line);font-weight:400;line-height:1}
+.step-h{font-size:20px;font-weight:500;letter-spacing:-0.02em;margin-bottom:8px}
+.step-p{font-size:14px;color:var(--muted);line-height:1.7;max-width:480px}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line);gap:1px;background:var(--line)}
+.stat{background:var(--bg);padding:64px 48px;text-align:center}
+.stat-n{font-family:'Playfair Display',serif;font-size:clamp(52px,5.5vw,80px);font-weight:400;letter-spacing:-0.02em;line-height:1;margin-bottom:10px}
+.stat-l{font-size:12px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted)}
+
+/* CTA */
+.cta{padding:120px 48px;text-align:center;border-bottom:1px solid var(--line)}
+.cta-h{font-family:'Playfair Display',serif;font-size:clamp(40px,6vw,84px);font-weight:400;line-height:1.1;letter-spacing:-0.02em;margin-bottom:20px}
+.cta-h em{font-style:italic;color:var(--muted)}
+.cta-p{font-size:16px;color:var(--muted);margin-bottom:48px}
+
+footer{padding:28px 48px;display:flex;justify-content:space-between;align-items:center}
+.foot-logo{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted)}
+.foot-links{display:flex;gap:24px;list-style:none}
+.foot-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color 0.2s}
+.foot-links a:hover{color:var(--fg)}
+
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:768px){
+  nav{padding:16px 24px}
+  .nav-links{display:none}
+  .hero{padding:0 24px 60px}
+  .hero-bot{flex-direction:column;align-items:flex-start;gap:28px}
+  .section{padding:64px 24px}
+  .two-col{grid-template-columns:1fr;gap:36px}
+  .tiles{grid-template-columns:1fr}
+  .stats{grid-template-columns:1fr}
+  .step{grid-template-columns:60px 1fr;gap:20px}
+  .cta{padding:72px 24px}
+  footer{padding:24px;flex-direction:column;gap:12px}
+}
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <a href="#" class="nav-logo">Stay Sharp</a>
+  <ul class="nav-links">
+    <li><a href="#habits">Habits</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+    <li><a href="index.html" class="nav-cta">Start tracking →</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">Daily accountability · Personal system · 2025</div>
+  <h1 class="hero-h">Three habits.<br><em>No excuses.</em><br>Every day.</h1>
+  <div class="hero-bot">
+    <p class="hero-sub">A daily tracker for the things that compound — reading, communication, and building. Log, reflect, and get called out when you miss.</p>
+    <div class="btn-row">
+      <a href="index.html" class="btn-dark">Start Tracking</a>
+      <a href="dashboard.html" class="btn-ghost">View Dashboard</a>
+    </div>
+  </div>
+</section>
+
+<div class="marquee-band" aria-hidden="true">
+  <div class="marquee-inner">
+    <span class="marquee-item"><b>📚</b>Book Reading</span>
+    <span class="marquee-item"><b>🗣</b>Soft Skills</span>
+    <span class="marquee-item"><b>💻</b>Side Project</span>
+    <span class="marquee-item"><b>🔥</b>Daily Streaks</span>
+    <span class="marquee-item"><b>📲</b>WhatsApp Alerts</span>
+    <span class="marquee-item"><b>📊</b>Dashboard</span>
+    <span class="marquee-item"><b>⚡</b>5-Min Trigger</span>
+    <span class="marquee-item"><b>🗓</b>90-Day Commit</span>
+    <span class="marquee-item"><b>📚</b>Book Reading</span>
+    <span class="marquee-item"><b>🗣</b>Soft Skills</span>
+    <span class="marquee-item"><b>💻</b>Side Project</span>
+    <span class="marquee-item"><b>🔥</b>Daily Streaks</span>
+    <span class="marquee-item"><b>📲</b>WhatsApp Alerts</span>
+    <span class="marquee-item"><b>📊</b>Dashboard</span>
+    <span class="marquee-item"><b>⚡</b>5-Min Trigger</span>
+    <span class="marquee-item"><b>🗓</b>90-Day Commit</span>
+  </div>
+</div>
+
+<section class="section">
+  <div class="sec-ey">00 — What is this</div>
+  <div class="two-col">
+    <h2 class="col-h">Built for the person who keeps <em>almost</em> starting.</h2>
+    <div class="col-p">
+      <p>Stay Sharp is a personal accountability system for three non-negotiable daily habits: reading, soft skills, and a side project.</p>
+      <p>Log every session. See your streaks. Get a shame notification — WhatsApp, push, or email — if you don't show up before your deadline.</p>
+      <p>No coaching. No community. Just you and the log.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="habits">
+  <div class="sec-ey">01 — The three reps</div>
+  <div class="tiles">
+    <div class="tile book"><div class="tile-accent"></div><div class="tile-n">01</div><div class="tile-e">📚</div><div class="tile-h">Book Reading</div><div class="tile-p">Log sessions, pages, key takeaways. Track your streak. Build a library of what you've actually absorbed.</div></div>
+    <div class="tile skill"><div class="tile-accent"></div><div class="tile-n">02</div><div class="tile-e">🗣</div><div class="tile-h">Soft Skills</div><div class="tile-p">Vocal drills, communication practice, decision making. The skills everyone needs but nobody trains daily.</div></div>
+    <div class="tile proj"><div class="tile-accent"></div><div class="tile-n">03</div><div class="tile-e">💻</div><div class="tile-h">Side Project</div><div class="tile-p">Log your task, time, and what you shipped or unblocked. Consistency over intensity. Always.</div></div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="sec-ey">02 — How it works</div>
+  <div class="steps">
+    <div class="step"><div class="step-n">01</div><div><div class="step-h">Open the tracker each day</div><p class="step-p">The interface resets every morning. Your streak history persists. Your excuses don't.</p></div></div>
+    <div class="step"><div class="step-n">02</div><div><div class="step-h">Log each habit with details</div><p class="step-p">Time spent, notes, reflections. Logging is the habit — writing it down is the commitment.</p></div></div>
+    <div class="step"><div class="step-n">03</div><div><div class="step-h">Set your deadline</div><p class="step-p">8 PM, 10 PM, or midnight. Whatever you choose, the system holds you to it.</p></div></div>
+    <div class="step"><div class="step-n">04</div><div><div class="step-h">Get called out if you miss</div><p class="step-p">WhatsApp message, push notification, and email to your accountability partner. No hiding.</p></div></div>
+    <div class="step"><div class="step-n">05</div><div><div class="step-h">Review your dashboard</div><p class="step-p">Streaks, weekly heatmap, hours logged, consistency rate. See the shape of your discipline.</p></div></div>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n">3</div><div class="stat-l">Daily habits tracked</div></div>
+  <div class="stat"><div class="stat-n">365</div><div class="stat-l">Days of streak history</div></div>
+  <div class="stat"><div class="stat-n">0</div><div class="stat-l">Excuses accepted</div></div>
+</div>
+
+<section class="cta">
+  <h2 class="cta-h">Ready to<br><em>stay sharp?</em></h2>
+  <p class="cta-p">Start logging today. Your future self will either thank you or be embarrassed by you.</p>
+  <a href="index.html" class="btn-dark">Start Tracking →</a>
+</section>
+
+<footer>
+  <div class="foot-logo">Stay Sharp · 2025</div>
+  <ul class="foot-links">
+    <li><a href="index.html">Tracker</a></li>
+    <li><a href="dashboard.html">Dashboard</a></li>
+  </ul>
+</footer>
+
+<script>
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60));
+const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('in'),i*120);});},{threshold:0.15});
+document.querySelectorAll('.tile').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
