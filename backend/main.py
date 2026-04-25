@@ -231,7 +231,7 @@ async def get_settings():
     return {
         "ok": True,
         "settings": {
-            "deadline": server_settings.get("deadline", "10pm"),
+            "deadline": server_settings.get("deadline", "9pm"),
             "ninety_day_start": server_settings.get("ninety_day_start", ""),
             "name": server_settings.get("name", ""),
         },
